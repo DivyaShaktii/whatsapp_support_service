@@ -5,3 +5,5 @@ pydantic>=2.9.0
 pydantic-settings>=2.2.1
 alembic>=1.13.1
 requests>=2.31.0
+httpx
+python-dotenv
