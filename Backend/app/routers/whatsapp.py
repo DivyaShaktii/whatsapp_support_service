@@ -1,161 +1,179 @@
-import requests
-import re
+"""
+app/routers/whatsapp.py
+
+WhatsApp connect via Zernio. This is an APIRouter — main.py already mounts it:
+    app.include_router(whatsapp.router, prefix="/api/channels/whatsapp", ...)
+
+So every route below is relative to /api/channels/whatsapp:
+    POST /api/channels/whatsapp/connect/new
+    GET  /api/channels/whatsapp/callback
+    GET  /api/channels/whatsapp/accounts
+    GET  /api/channels/whatsapp/accounts/{profile_id}
+
+In-memory store for now (one Zernio profile == one WhatsApp account).
+When you're ready, swap the `store` calls for your SQLAlchemy models/schemas.
+"""
+
 import os
-from fastapi import APIRouter, Depends, HTTPException, Request, Query, Response
-from sqlalchemy.orm import Session
+import threading
 from datetime import datetime, timezone
-from ..database import get_db
-from ..models.whatsapp import WhatsAppConnection
-from ..models.workspace import Workspace
-from ..schemas.whatsapp import WhatsAppConnect, WhatsAppResponse
+from typing import Optional
+
+import httpx
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 
 router = APIRouter()
 
-def normalize_phone_number(phone: str) -> str:
-    """Removes any non-digit characters from the phone number."""
-    if not phone:
-        return ""
-    return re.sub(r'\D', '', phone)
+ZERNIO_BASE = "https://zernio.com/api/v1"
+# Full path (incl. the router prefix) because Zernio redirects the browser here.
+CALLBACK_PATH = "/api/channels/whatsapp/callback"
 
-@router.post("/connect", response_model=WhatsAppResponse)
-def connect_whatsapp_meta(data: WhatsAppConnect, db: Session = Depends(get_db)):
-    # Verify workspace exists
-    workspace = db.query(Workspace).filter(Workspace.id == data.workspace_id).first()
-    if not workspace:
-        raise HTTPException(status_code=404, detail="Workspace not found")
-        
-    # Check if this phone number is already connected to another workspace
-    existing = db.query(WhatsAppConnection).filter(WhatsAppConnection.phone_number == data.phone_number).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="This phone number is already linked to a business.")
 
-    # Call Meta Graph API to verify the number
-    # Use v19.0 of Graph API
-    url = f"https://graph.facebook.com/v19.0/{data.phone_number_id}"
-    params = {
-        "access_token": data.access_token
-    }
-    
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        meta_data = response.json()
-        
-        display_phone_number = meta_data.get("display_phone_number")
-        if not display_phone_number:
-            raise HTTPException(status_code=400, detail="Could not retrieve phone number details from Meta.")
-            
-        # Normalize and compare
-        normalized_entered = normalize_phone_number(data.phone_number)
-        normalized_meta = normalize_phone_number(display_phone_number)
-        
-        if normalized_entered != normalized_meta:
-            raise HTTPException(
-                status_code=400, 
-                detail="The phone number selected in Meta does not match the entered number. Please try again."
-            )
-            
-    except requests.exceptions.RequestException as e:
-        # If response has a json body, try to extract error message
-        error_msg = str(e)
-        if hasattr(e, 'response') and e.response is not None:
-            try:
-                error_data = e.response.json()
-                if "error" in error_data and "message" in error_data["error"]:
-                    error_msg = error_data["error"]["message"]
-            except Exception:
-                pass
-        raise HTTPException(status_code=400, detail=f"Failed to verify with Meta API: {error_msg}")
+# ---- config read at call-time, so .env load order never bites you ----------
+def _api_key() -> str:
+    key = os.environ.get("ZERNIO_API_KEY")
+    if not key:
+        raise HTTPException(500, "ZERNIO_API_KEY is not set on the backend")
+    return key
 
-    # Subscribe to webhooks for this WABA
-    webhook_url = f"https://graph.facebook.com/v19.0/{data.waba_id}/subscribed_apps"
-    webhook_status = "pending"
-    try:
-        webhook_response = requests.post(webhook_url, params=params)
-        webhook_response.raise_for_status()
-        webhook_data = webhook_response.json()
-        if webhook_data.get("success"):
-            webhook_status = "active"
-    except requests.exceptions.RequestException as e:
-        # Log error in real app, but don't fail the whole connection
-        # We can retry webhook subscription later
-        webhook_status = "failed"
 
-    connection = WhatsAppConnection(
-        workspace_id=data.workspace_id,
-        phone_number=data.phone_number,
-        phone_number_id=data.phone_number_id,
-        waba_id=data.waba_id,
-        meta_business_id=data.meta_business_id,
-        display_name=data.display_name or meta_data.get("verified_name"),
-        access_token=data.access_token,
-        onboarding_type="meta_embedded_signup",
-        verification_status="verified", 
-        webhook_subscription_status=webhook_status,
-        connected_at=datetime.now(timezone.utc)
-    )
-    db.add(connection)
-    db.commit()
-    db.refresh(connection)
-    return connection
+def _auth_headers() -> dict:
+    return {"Authorization": f"Bearer {_api_key()}"}
 
-# Normally you'd want this in your settings/config management
-WEBHOOK_VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "my_secure_verify_token")
 
-@router.get("/webhook")
-def verify_webhook(
-    hub_mode: str = Query(None, alias="hub.mode"),
-    hub_challenge: str = Query(None, alias="hub.challenge"),
-    hub_verify_token: str = Query(None, alias="hub.verify_token")
+def _public_base() -> str:
+    return os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000")
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+# ---- in-memory store -------------------------------------------------------
+class Connection(BaseModel):
+    profile_id: str
+    label: Optional[str] = None
+    status: str = "pending"           # pending | connected | failed
+    account_id: Optional[str] = None  # Zernio WhatsApp account id (send with this)
+    phone: Optional[str] = None
+    details: Optional[dict] = None     # full account record fetched from Zernio
+    created_at: str
+    updated_at: str
+
+
+class _Store:
+    def __init__(self):
+        self._data: dict[str, Connection] = {}
+        self._lock = threading.Lock()
+
+    def upsert_pending(self, profile_id: str, label: Optional[str]) -> Connection:
+        now = _now()
+        with self._lock:
+            c = self._data.get(profile_id)
+            if c:
+                c.status, c.label, c.updated_at = "pending", label or c.label, now
+                return c
+            c = Connection(profile_id=profile_id, label=label, status="pending",
+                           created_at=now, updated_at=now)
+            self._data[profile_id] = c
+            return c
+
+    def mark_connected(self, profile_id: str, account_id: str, phone: Optional[str]):
+        now = _now()
+        with self._lock:
+            c = self._data.get(profile_id) or Connection(
+                profile_id=profile_id, created_at=now, updated_at=now)
+            c.status, c.account_id, c.phone, c.updated_at = "connected", account_id, phone, now
+            self._data[profile_id] = c
+
+    def mark_failed(self, profile_id: str):
+        with self._lock:
+            c = self._data.get(profile_id)
+            if c:
+                c.status, c.updated_at = "failed", _now()
+
+    def get(self, profile_id: str) -> Optional[Connection]:
+        return self._data.get(profile_id)
+
+    def list(self) -> list[Connection]:
+        return list(self._data.values())
+
+
+store = _Store()
+
+
+# ---- Zernio helpers --------------------------------------------------------
+async def create_zernio_profile(name: str) -> str:
+    async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.post(
+            f"{ZERNIO_BASE}/profiles",
+            headers={**_auth_headers(), "Content-Type": "application/json"},
+            json={"name": name},
+        )
+    if resp.status_code not in (200, 201):
+        raise HTTPException(resp.status_code, f"Profile create failed: {resp.text}")
+    return resp.json()["profile"]["_id"]
+
+
+def _close_page(title: str, message: str) -> HTMLResponse:
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>{title}</title></head>
+<body style="font-family:system-ui,sans-serif;text-align:center;padding:48px;color:#111">
+  <h2>{title}</h2>
+  <p style="color:#555">{message}</p>
+  <script>setTimeout(function(){{ window.close(); }}, 1200);</script>
+</body></html>"""
+    return HTMLResponse(content=html)
+
+
+# ---- routes ----------------------------------------------------------------
+@router.post("/connect/new")
+async def start_connect_new(label: str = Query(..., description="Display name for this account")):
+    profile_id = await create_zernio_profile(name=label)
+    store.upsert_pending(profile_id, label)
+
+    redirect_url = f"{_public_base()}{CALLBACK_PATH}"
+    async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.get(
+            f"{ZERNIO_BASE}/connect/whatsapp",
+            headers=_auth_headers(),
+            params={"profileId": profile_id, "redirect_url": redirect_url},
+        )
+    if resp.status_code != 200:
+        # Surfaces Zernio errors (e.g. PAYMENT_REQUIRED past the free 2-account limit)
+        raise HTTPException(resp.status_code, f"Zernio connect failed: {resp.text}")
+
+    auth_url = resp.json().get("authUrl")
+    if not auth_url:
+        raise HTTPException(502, "No authUrl returned by Zernio")
+    return {"authUrl": auth_url, "profileId": profile_id}
+
+
+@router.get("/callback")
+async def callback(
+    connected: Optional[str] = None,
+    profileId: Optional[str] = None,
+    accountId: Optional[str] = None,
+    username: Optional[str] = None,
 ):
-    """
-    Endpoint for Meta to verify the webhook URL.
-    When you configure the Webhook in the App Dashboard, Meta sends a GET request here.
-    """
-    if hub_mode == "subscribe" and hub_verify_token == WEBHOOK_VERIFY_TOKEN:
-        # Meta expects the raw hub.challenge value back as a plain text response
-        return Response(content=hub_challenge, media_type="text/plain")
-    
-    raise HTTPException(status_code=403, detail="Verification failed")
+    if connected == "whatsapp" and profileId and accountId:
+        store.mark_connected(profileId, accountId, username)
+        return _close_page("WhatsApp connected \u2705", "You can close this window.")
+    if profileId:
+        store.mark_failed(profileId)
+    return _close_page("Connection failed", "Please close this window and try again.")
 
-@router.post("/webhook")
-async def handle_webhook(request: Request, db: Session = Depends(get_db)):
-    """
-    Endpoint for receiving incoming WhatsApp messages and status updates from Meta.
-    """
-    body = await request.json()
-    
-    # Verify that this is a WhatsApp API webhook event
-    if body.get("object") == "whatsapp_business_account":
-        for entry in body.get("entry", []):
-            for change in entry.get("changes", []):
-                value = change.get("value", {})
-                
-                # We can identify the WABA and phone number receiving the message
-                phone_number_id = value.get("metadata", {}).get("phone_number_id")
-                
-                # TODO: Retrieve tenant/workspace configuration using phone_number_id
-                # connection = db.query(WhatsAppConnection).filter_by(phone_number_id=phone_number_id).first()
-                
-                # Check if it contains new messages
-                if "messages" in value:
-                    for message in value["messages"]:
-                        # Extract message details
-                        sender_phone = message.get("from")
-                        msg_type = message.get("type")
-                        
-                        # Example log
-                        print(f"Received {msg_type} message from {sender_phone} on number {phone_number_id}")
-                        
-                        # TODO: Trigger your AI agent or save to database here
-                        
-                # Check if it contains message status updates (sent, delivered, read, failed)
-                elif "statuses" in value:
-                    for status in value["statuses"]:
-                        status_type = status.get("status")
-                        print(f"Message {status.get('id')} status updated to {status_type}")
-                        
-        # Meta requires a 200 OK response within 20 seconds, otherwise they will retry
-        return Response(content="EVENT_RECEIVED", status_code=200, media_type="text/plain")
-        
-    raise HTTPException(status_code=404, detail="Not a WhatsApp API event")
+
+@router.get("/accounts")
+async def list_accounts():
+    return {"accounts": [c.model_dump() for c in store.list()]}
+
+
+@router.get("/accounts/{profile_id}")
+async def get_account(profile_id: str):
+    c = store.get(profile_id)
+    if not c:
+        raise HTTPException(404, "No connection for that profileId")
+    return c.model_dump()
