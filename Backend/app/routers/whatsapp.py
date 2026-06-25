@@ -80,12 +80,15 @@ class _Store:
             self._data[profile_id] = c
             return c
 
-    def mark_connected(self, profile_id: str, account_id: str, phone: Optional[str]):
+    def mark_connected(self, profile_id: str, account_id: str, phone: Optional[str],
+                       details: Optional[dict] = None):
         now = _now()
         with self._lock:
             c = self._data.get(profile_id) or Connection(
                 profile_id=profile_id, created_at=now, updated_at=now)
             c.status, c.account_id, c.phone, c.updated_at = "connected", account_id, phone, now
+            if details is not None:
+                c.details = details
             self._data[profile_id] = c
 
     def mark_failed(self, profile_id: str):
@@ -105,6 +108,23 @@ store = _Store()
 
 
 # ---- Zernio helpers --------------------------------------------------------
+async def fetch_zernio_account(account_id: str) -> Optional[dict]:
+    """Pull the full account record from Zernio (WABA id, phone, display name, etc.)."""
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.get(f"{ZERNIO_BASE}/accounts", headers=_auth_headers())
+        if resp.status_code != 200:
+            return None
+        body = resp.json()
+        accounts = body.get("accounts", body if isinstance(body, list) else [])
+        for a in accounts:
+            if a.get("_id") == account_id or a.get("accountId") == account_id:
+                return a
+    except Exception:
+        pass
+    return None
+
+
 async def create_zernio_profile(name: str) -> str:
     async with httpx.AsyncClient(timeout=20) as client:
         resp = await client.post(
@@ -159,7 +179,9 @@ async def callback(
     username: Optional[str] = None,
 ):
     if connected == "whatsapp" and profileId and accountId:
-        store.mark_connected(profileId, accountId, username)
+        # Pull the full account record from Zernio (best-effort) and store it.
+        details = await fetch_zernio_account(accountId)
+        store.mark_connected(profileId, accountId, username, details)
         return _close_page("WhatsApp connected \u2705", "You can close this window.")
     if profileId:
         store.mark_failed(profileId)
