@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp Automation — Customer Journey Wireframe · Tier 1 & Tier 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* canvas = WhatsApp dark-mode chat background, to ground the page in its own subject */
+    --bg:#0B141A; --bg-2:#0F1C24; --panel:#10212B; --panel-2:#13262F;
+    --line:#21333D; --line-2:#2A3F4A;
+    --ink:#E9EDEF; --ink-2:#C5D0D6; --muted:#8696A0; --faint:#5C6F79;
+    --teal:#1FB6A8;          /* primary / architecture layer */
+    --teal-deep:#008069;     /* WhatsApp header */
+    --green:#25D366;         /* free / positive */
+    --blue:#53BDEB;          /* data / system / read-tick */
+    --amber:#F5B544;         /* caution / paid / decision */
+    --red:#F1607A;           /* stop / handoff */
+    /* in-phone (light WhatsApp) */
+    --wa-bg:#E9E2D8; --wa-out:#D9FDD3; --wa-in:#FFFFFF; --wa-meta:#667781; --wa-head:#008069;
+    --radius:16px;
+    --maxw:1240px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.55;
+    background-image:
+      radial-gradient(900px 500px at 85% -8%, rgba(31,182,168,.10), transparent 60%),
+      radial-gradient(700px 460px at 5% 4%, rgba(83,189,235,.07), transparent 60%);
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+  a{color:var(--blue); text-decoration:none}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:74px 0 30px; position:relative; overflow:hidden}
+  header.hero::before{
+    content:""; position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image:radial-gradient(680px 360px at 26% 36%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(680px 360px at 26% 36%, #000 0%, transparent 72%);
+  }
+  .hero .wrap{position:relative; z-index:1}
+  .eyebrow{font-family:"JetBrains Mono",monospace; font-size:12.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--teal); display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(37,211,102,.16)}
+  h1{font-family:"Space Grotesk",sans-serif; font-weight:700; letter-spacing:-.02em;
+    font-size:clamp(31px,5.4vw,56px); line-height:1.02; margin:.42em 0 .26em; max-width:18ch}
+  h1 em{font-style:normal; color:var(--teal); position:relative; white-space:nowrap}
+  .lede{font-size:clamp(15.5px,1.7vw,18.5px); color:var(--ink-2); max-width:74ch; margin:0}
+  .verified-on{margin-top:18px; font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--muted);
+    display:flex; gap:8px 16px; flex-wrap:wrap; align-items:center}
+  .verified-on b{color:var(--ink-2); font-weight:600}
+  .pillrow{margin-top:22px; display:flex; gap:8px; flex-wrap:wrap}
+  .pill{font-family:"JetBrains Mono",monospace; font-size:11.5px; letter-spacing:.04em; color:var(--ink-2);
+    border:1px solid var(--line-2); background:var(--panel); padding:6px 11px; border-radius:999px}
+  .pill b{color:var(--teal); font-weight:600}
+
+  /* ---------- LEGEND ---------- */
+  .legend{margin:34px 0 6px; border:1px solid var(--line); background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border-radius:var(--radius); padding:16px 18px}
+  .legend h4{margin:0 0 12px; font-family:"JetBrains Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--muted); font-weight:600}
+  .legend-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:11px 18px}
+  .leg{display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--ink-2)}
+  .leg .k{flex:0 0 auto; margin-top:1px}
+  .leg small{display:block; color:var(--faint); font-size:11.5px; line-height:1.35}
+  @media(max-width:880px){ .legend-grid{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:520px){ .legend-grid{grid-template-columns:1fr} }
+
+  /* chips / tags */
+  .chip{font-family:"JetBrains Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.04em;
+    padding:3px 7px; border-radius:6px; white-space:nowrap; border:1px solid transparent; line-height:1.4}
+  .c-layer{color:#0B141A; background:var(--teal)}
+  .c-act{color:var(--ink); background:#1d3540; border-color:var(--line-2)}
+  .c-data{color:#0B141A; background:var(--blue)}
+  .c-free{color:#0B141A; background:var(--green)}
+  .c-paid{color:#0B141A; background:var(--amber)}
+  .c-sec{color:var(--blue); background:rgba(83,189,235,.10); border-color:rgba(83,189,235,.4)}
+  .c-guard{color:var(--green); background:rgba(37,211,102,.08); border-color:rgba(37,211,102,.4)}
+  .c-dec{color:var(--amber); background:rgba(245,181,68,.10); border-color:rgba(245,181,68,.45)}
+  .c-metric{color:var(--muted); background:transparent; border-color:var(--line-2)}
+
+  /* ---------- TIER BAND ---------- */
+  .band{margin:60px 0 6px; border-radius:18px; padding:22px 22px 20px; position:relative; overflow:hidden;
+    border:1px solid var(--line-2); background:linear-gradient(180deg, var(--panel-2), var(--bg-2))}
+  .band::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--teal)}
+  .band.t2::before{background:var(--amber)}
+  .band-top{display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap}
+  .band .tier-id{font-family:"JetBrains Mono",monospace; font-size:12px; letter-spacing:.18em; color:var(--teal)}
+  .band.t2 .tier-id{color:var(--amber)}
+  .band h2{font-family:"Space Grotesk",sans-serif; font-size:clamp(24px,3.4vw,34px); font-weight:700;
+    letter-spacing:-.015em; margin:4px 0 4px}
+  .band .role{color:var(--ink-2); font-size:15px; max-width:62ch; margin:0}
+  .band .specrow{margin-top:14px; display:flex; gap:7px; flex-wrap:wrap}
+  .spec{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--ink-2);
+    border:1px solid var(--line-2); border-radius:7px; padding:5px 9px; background:rgba(0,0,0,.18)}
+  .spec b{color:var(--ink); font-weight:600}
+  .valuebox{flex:0 0 auto; max-width:280px; border:1px dashed var(--line-2); border-radius:12px; padding:12px 13px;
+    background:rgba(0,0,0,.2)}
+  .valuebox .lbl{font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase}
+  .valuebox p{margin:6px 0 0; font-size:13.5px; color:var(--ink-2)}
+
+  /* at-a-glance journey strip */
+  .glance{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:18px; padding-top:16px; border-top:1px solid var(--line)}
+  .glance .step{font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink-2);
+    border:1px solid var(--line-2); border-radius:999px; padding:5px 11px; background:var(--panel)}
+  .glance .step b{color:var(--teal)}
+  .band.t2 .glance .step b{color:var(--amber)}
+  .glance .arr{color:var(--faint); font-family:monospace}
+
+  /* ---------- STAGES ---------- */
+  .stages{position:relative; margin:8px 0 0; padding:14px 0 0}
+  .stage{position:relative; padding:26px 0 8px}
+  .stage + .stage{border-top:1px dashed var(--line)}
+  .stage-head{display:flex; align-items:baseline; gap:14px; margin-bottom:16px; flex-wrap:wrap}
+  .stage-head .num{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:30px; color:var(--teal);
+    line-height:1; letter-spacing:-.02em}
+  .t2 .stage-head .num{color:var(--amber)}
+  .stage-head .name{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:19px; letter-spacing:-.01em}
+  .stage-head .purpose{font-size:13.5px; color:var(--muted); flex:1 1 260px}
+
+  .grid{display:grid; grid-template-columns:330px 1fr; gap:26px; align-items:start}
+  @media(max-width:900px){ .grid{grid-template-columns:1fr; gap:16px} }
+
+  /* ---------- PHONE ---------- */
+  .phone-col{display:flex; justify-content:center}
+  .phone{width:312px; max-width:100%; background:#0b0b0b; border-radius:34px; padding:9px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5), 0 0 0 1px #2c2c2c inset; position:relative}
+  .phone .scr{background:var(--wa-bg); border-radius:26px; overflow:hidden;
+    background-image:
+      radial-gradient(rgba(0,0,0,.022) 1px, transparent 1px),
+      radial-gradient(rgba(0,0,0,.022) 1px, transparent 1px);
+    background-size:18px 18px, 18px 18px; background-position:0 0, 9px 9px}
+  .wa-head{background:var(--wa-head); color:#fff; display:flex; align-items:center; gap:9px; padding:13px 12px 11px}
+  .wa-head .bk{font-size:18px; opacity:.95; margin-right:-1px}
+  .wa-head .av{width:30px;height:30px;border-radius:50%;background:#0d8e76;display:grid;place-items:center;
+    font-size:14px; font-weight:600; color:#fff; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25)}
+  .wa-head .nm{font:600 14px/1.05 -apple-system,"Segoe UI",Roboto,sans-serif}
+  .wa-head .st{font:400 11px/1.2 -apple-system,"Segoe UI",Roboto,sans-serif; opacity:.85}
+  .wa-head .st.typing{color:#c9f7e7}
+  .wa-head .ic{margin-left:auto; display:flex; gap:14px; opacity:.92; font-size:15px}
+  .verifiedtick{font-size:11px}
+
+  .wa-body{padding:12px 10px 14px; display:flex; flex-direction:column; gap:8px; min-height:120px;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif}
+  .daypill{align-self:center; background:#d3e2df; color:#5b6b67; font-size:10.5px; font-weight:600;
+    padding:3px 11px; border-radius:8px; box-shadow:0 1px 1px rgba(0,0,0,.04); margin:2px 0 4px}
+  .sys-note{align-self:center; background:#fbf4d6; color:#7a6a3a; font-size:10px; padding:4px 10px; border-radius:8px;
+    text-align:center; max-width:88%}
+
+  .b{max-width:80%; padding:7px 9px 5px; border-radius:9px; font-size:12.8px; color:#0a1f17; position:relative;
+    box-shadow:0 1px .5px rgba(0,0,0,.13); word-wrap:break-word}
+  .b.in{background:var(--wa-in); align-self:flex-start; border-top-left-radius:2px}
+  .b.out{background:var(--wa-out); align-self:flex-end; border-top-right-radius:2px}
+  .b .tx{white-space:pre-wrap}
+  .b .meta{display:flex; gap:4px; align-items:center; justify-content:flex-end; margin-top:2px}
+  .b .tm{font-size:9.5px; color:var(--wa-meta)}
+  .tick{width:15px;height:11px;display:inline-block;vertical-align:middle}
+  .b strong{font-weight:700}
+  .b .em{color:#128C7E; font-weight:600}
+
+  /* interactive: list message bottom-sheet */
+  .listsheet{background:#fff; border-radius:11px; align-self:stretch; margin:1px 2px 0; overflow:hidden;
+    box-shadow:0 1px .5px rgba(0,0,0,.13)}
+  .listsheet .lh{padding:9px 12px 7px; font:600 12.5px -apple-system,Roboto,sans-serif; color:#0a1f17; border-bottom:1px solid #eee}
+  .listsheet .lh small{display:block; font-weight:400; color:#667781; font-size:11px; margin-top:2px}
+  .listsheet .sec{padding:8px 12px 3px; font:600 10.5px "JetBrains Mono",monospace; color:#008069; letter-spacing:.04em; text-transform:uppercase}
+  .lrow{display:flex; align-items:center; gap:9px; padding:9px 12px; border-top:1px solid #f1f1f1; font-size:12.3px; color:#111}
+  .lrow .ri{width:18px;height:18px;border-radius:50%;border:1.5px solid #c7ccce;flex:0 0 auto}
+  .lrow .ri.sel{border-color:#008069;background:#008069;box-shadow:inset 0 0 0 3px #fff}
+  .lrow em{font-style:normal;color:#667781;font-size:10.5px;margin-left:auto}
+
+  /* interactive: reply buttons */
+  .btns{display:flex; flex-direction:column; gap:4px; align-self:stretch; margin:2px 2px 0}
+  .qbtn{background:#fff; color:#027eb5; text-align:center; padding:9px; border-radius:9px;
+    font:600 12.5px -apple-system,Roboto,sans-serif; box-shadow:0 1px .5px rgba(0,0,0,.12);
+    display:flex; align-items:center; justify-content:center; gap:6px}
+  .qbtn.ghost{color:#54656f}
+
+  /* interactive: flow CTA inside a bubble */
+  .flowcta{border-top:1px solid #eef0f0; margin:7px -9px -5px; padding:9px; color:#027eb5;
+    font:600 12.5px -apple-system,Roboto,sans-serif; text-align:center; display:flex; gap:7px; justify-content:center; align-items:center}
+
+  /* rich status / confirm card inside a bubble */
+  .card{align-self:flex-start; background:#fff; border-radius:11px; max-width:84%; overflow:hidden;
+    box-shadow:0 1px .5px rgba(0,0,0,.14); font-family:-apple-system,Roboto,sans-serif}
+  .card.confirm{border:1px solid #ffe0a3}
+  .card .ch{padding:9px 11px 8px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #f0f0f0}
+  .card .ch .ci{width:26px;height:26px;border-radius:7px;background:#e7f7f1;display:grid;place-items:center;font-size:14px}
+  .card .ch .ct{font:600 12.5px/1.1 -apple-system,Roboto,sans-serif;color:#0a1f17}
+  .card .ch .cs{font-size:10px;color:#667781}
+  .card .cbody{padding:8px 11px 4px; font-size:11.8px; color:#1c2b25}
+  .statusline{display:flex; align-items:center; gap:7px; font-weight:600; color:#0a7d52; margin-bottom:5px; font-size:12px}
+  .statusline .sd{width:8px;height:8px;border-radius:50%;background:#0fae6a;box-shadow:0 0 0 3px rgba(15,174,106,.16)}
+  .krow{display:flex; gap:6px; font-size:11.3px; margin:3px 0; color:#33433c}
+  .krow b{color:#0a1f17;font-weight:600;min-width:64px;display:inline-block}
+  .card .cbtns{display:flex; border-top:1px solid #f0f0f0; margin-top:6px}
+  .card .cbtns div{flex:1; text-align:center; padding:9px 4px; font:600 11.5px -apple-system,Roboto,sans-serif;
+    color:#027eb5; border-right:1px solid #f0f0f0}
+  .card .cbtns div:last-child{border-right:0}
+  .card .cbtns div.go{color:#0a7d52}
+  .card .cbtns div.stop{color:#c2415a}
+  .flowsheet{align-self:stretch;background:#fff;border-radius:11px;margin:1px 2px 0;overflow:hidden;box-shadow:0 1px .5px rgba(0,0,0,.13)}
+  .flowsheet .fh{padding:9px 12px;font:600 12px -apple-system,Roboto,sans-serif;color:#0a1f17;border-bottom:1px solid #eee;display:flex;align-items:center;gap:7px}
+  .flowsheet .ff{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+  .field{border:1px solid #d8dcde;border-radius:8px;padding:8px 10px;font-size:11.5px;color:#5b6b67;display:flex;justify-content:space-between;align-items:center}
+  .field.active{border-color:#008069;color:#0a1f17;font-weight:500}
+  .flowsheet .submit{margin:2px 12px 12px;background:#008069;color:#fff;text-align:center;padding:9px;border-radius:8px;font:600 12px -apple-system,Roboto,sans-serif}
+
+  /* ---------- X-RAY (behind the glass) ---------- */
+  .xray-col{min-width:0}
+  .xray{border:1px solid var(--line-2); border-radius:13px; background:
+    linear-gradient(180deg, rgba(31,182,168,.05), rgba(0,0,0,.12));
+    padding:14px 15px}
+  .t2 .xray{background:linear-gradient(180deg, rgba(245,181,68,.05), rgba(0,0,0,.12))}
+  .xray .xt{font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 11px; display:flex; align-items:center; gap:8px}
+  .xray .xt::after{content:""; flex:1; height:1px; background:var(--line)}
+  .xrow{display:flex; gap:10px; align-items:flex-start; padding:6px 0; font-size:13px; color:var(--ink-2);
+    border-top:1px dotted var(--line)}
+  .xrow:first-of-type{border-top:0}
+  .xrow .chip{flex:0 0 auto; margin-top:1px}
+  .xrow code{font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--blue); background:rgba(83,189,235,.08);
+    padding:1px 5px; border-radius:4px}
+  .xrow .arrowed{color:var(--faint)}
+  .xrow b{color:var(--ink); font-weight:600}
+
+  /* branch / decision node */
+  .branch{margin:12px 0 2px 4px; border-left:2px solid var(--amber); padding:9px 13px; border-radius:0 10px 10px 0;
+    background:rgba(245,181,68,.06); position:relative}
+  .branch.stop{border-left-color:var(--red); background:rgba(241,96,122,.06)}
+  .branch .bh{font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:600; letter-spacing:.03em;
+    color:var(--amber); display:flex; align-items:center; gap:7px}
+  .branch.stop .bh{color:var(--red)}
+  .branch p{margin:5px 0 0; font-size:12.6px; color:var(--ink-2)}
+  .branch p code{font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink)}
+
+  /* ---------- VERIFY STRIP ---------- */
+  .verify{margin:26px 0 4px; border:1px solid var(--line-2); border-radius:14px; overflow:hidden}
+  .verify .vh{display:flex; align-items:center; gap:10px; padding:11px 15px; background:rgba(83,189,235,.06);
+    border-bottom:1px solid var(--line)}
+  .verify .vh .tag{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--blue); font-weight:600}
+  .verify .vh .src{margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:10.5px; color:var(--faint)}
+  .vbody{display:grid; grid-template-columns:repeat(3,1fr); gap:0}
+  .vcell{padding:13px 15px; border-right:1px solid var(--line); font-size:13px; color:var(--ink-2)}
+  .vcell:last-child{border-right:0}
+  .vcell h5{margin:0 0 5px; font-family:"Space Grotesk",sans-serif; font-size:13.5px; color:var(--ink); font-weight:600}
+  .vcell .vs{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--green); margin-top:7px; display:block}
+  .vcell .vs.warn{color:var(--amber)}
+  @media(max-width:880px){ .vbody{grid-template-columns:1fr} .vcell{border-right:0; border-top:1px solid var(--line)} .vcell:first-child{border-top:0} }
+
+  /* ---------- FOOTER ---------- */
+  footer{margin:64px 0 60px; border-top:1px solid var(--line); padding-top:24px; color:var(--muted); font-size:13px}
+  footer h4{font-family:"Space Grotesk",sans-serif; color:var(--ink); margin:0 0 8px; font-size:16px}
+  footer .srcs{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--faint); margin-top:14px; line-height:1.9}
+  footer code{color:var(--ink-2)}
+
+  .keycap{font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;color:var(--ink-2);background:var(--panel)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .stage{opacity:0; transform:translateY(14px); animation:rise .6s ease forwards}
+    .stage:nth-child(2){animation-delay:.04s}.stage:nth-child(3){animation-delay:.08s}
+    .stage:nth-child(4){animation-delay:.12s}.stage:nth-child(5){animation-delay:.16s}.stage:nth-child(6){animation-delay:.2s}
+    @keyframes rise{to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> WhatsApp Automation Platform · Zernio white-label · Blueprint wireframe</div>
+    <h1>What the customer <em>actually experiences</em> — screen by screen.</h1>
+    <p class="lede">A detailed journey wireframe for the two tiers you sell first: <b style="color:var(--teal)">Tier&nbsp;1 — Answer</b> (knowledge / FAQ) and <b style="color:var(--amber)">Tier&nbsp;2 — Act</b> (live data + write-back). Left side is the real WhatsApp surface the customer sees. Right side is the system <i>behind the glass</i>: which architecture layer runs, what it costs, where it can branch to a human.</p>
+    <div class="verified-on">
+      <span>◷ Verified <b>Jun 2026</b> against:</span>
+      <span>Meta WhatsApp Cloud API &amp; the <b>Jan 15 2026</b> AI policy</span><span>·</span>
+      <span>Indian BSP market — <b>Wati · AiSensy · Interakt · Zoko</b></span><span>·</span>
+      <span>Meta <b>Business Agent</b> (launched Jun 3 2026)</span>
+    </div>
+    <div class="pillrow">
+      <span class="pill"><b>One</b> platform, three configs</span>
+      <span class="pill">Tier&nbsp;1 <b>⊂</b> Tier&nbsp;2 <b>⊂</b> Tier&nbsp;3</span>
+      <span class="pill">Agent <b>proposes</b> · tool layer <b>disposes</b></span>
+      <span class="pill"><b>0%</b> markup on Meta messages</span>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <h4>How to read the “behind the glass” column</h4>
+      <div class="legend-grid">
+        <div class="leg"><span class="chip c-layer k">LAYER</span><div>Architecture layer that runs<small>Gateway · Agent · Tool · Knowledge · Integration (Blueprint §4.1)</small></div></div>
+        <div class="leg"><span class="chip c-act k">ACTION</span><div>What the bot does this turn<small>the user-visible move</small></div></div>
+        <div class="leg"><span class="chip c-data k">DATA</span><div>Source it reads / writes<small>RAG namespace, order DB, cache</small></div></div>
+        <div class="leg"><span class="chip c-free k">● FREE</span><div>Free message<small>service reply inside the 24h window</small></div></div>
+        <div class="leg"><span class="chip c-paid k">● PAID</span><div>Billed template<small>utility / marketing, out-of-window</small></div></div>
+        <div class="leg"><span class="chip c-sec k">🔒 SEC</span><div>Security boundary<small>model never sees creds or the DB</small></div></div>
+        <div class="leg"><span class="chip c-guard k">GUARD</span><div>Guardrail by construction<small>no tool ⇒ action is impossible</small></div></div>
+        <div class="leg"><span class="chip c-dec k">◆ DECISION</span><div>Branch point<small>confidence gate · confirm gate · handoff</small></div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============================ TIER 1 ============================ -->
+  <section class="band t1" id="tier1">
+    <div class="band-top">
+      <div>
+        <div class="tier-id">TIER 1 · ANSWER</div>
+        <h2>Knowledge / FAQ bot</h2>
+        <p class="role">Deflects the same questions 24/7 — hours, policies, pricing, product facts — grounded in the client’s own docs. No live systems, no write-back. The cheapest tier to run and the easiest to make reliable.</p>
+        <div class="specrow">
+          <span class="spec">data&nbsp;<b>static</b></span>
+          <span class="spec">write-back&nbsp;<b>no</b></span>
+          <span class="spec">integration&nbsp;<b>low — upload docs</b></span>
+          <span class="spec">core build&nbsp;<b>RAG + guided menus</b></span>
+          <span class="spec">cost shape&nbsp;<b>LLM call only</b></span>
+        </div>
+      </div>
+      <div class="valuebox">
+        <span class="lbl">Example tenant</span>
+        <p><b>BrightSmile Dental</b> — a single-clinic practice. The bot answers “do you do X / how much / when are you open” and hands off cleanly when it isn’t sure.</p>
+      </div>
+    </div>
+    <div class="glance">
+      <span class="step"><b>01</b>&nbsp;Entry</span><span class="arr">→</span>
+      <span class="step"><b>02</b>&nbsp;Intent</span><span class="arr">→</span>
+      <span class="step"><b>03</b>&nbsp;Retrieve&nbsp;(RAG)</span><span class="arr">→</span>
+      <span class="step"><b>04</b>&nbsp;Answer</span><span class="arr">→</span>
+      <span class="step"><b>05</b>&nbsp;Resolve&nbsp;+&nbsp;handoff</span>
+    </div>
+  </section>
+
+  <div class="stages t1">
+
+    <!-- T1 · 01 ENTRY -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">01</span><span class="name">Entry</span>
+        <span class="purpose">Customer arrives from a “Chat on WhatsApp” link, a QR, or a click-to-WhatsApp ad. First impression + orientation.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">B</span>
+              <div><div class="nm">BrightSmile Dental <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="daypill">TODAY</div>
+              <div class="b out"><div class="tx">Hi</div><div class="meta"><span class="tm">6:24 pm</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <div class="b in"><div class="tx">Hi there 👋 You’re chatting with <strong>BrightSmile Dental</strong>. I can help with appointments, services, pricing and hours.</div><div class="meta"><span class="tm">6:24 pm</span></div></div>
+              <div class="listsheet">
+                <div class="lh">What can I help you with?<small>Pick one, or just type your question</small></div>
+                <div class="sec">Popular</div>
+                <div class="lrow"><span class="ri"></span> Clinic hours &amp; address</div>
+                <div class="lrow"><span class="ri"></span> Services &amp; prices</div>
+                <div class="lrow"><span class="ri"></span> Insurance &amp; payment</div>
+                <div class="lrow"><span class="ri"></span> Book a check-up</div>
+                <div class="lrow"><span class="ri"></span> Talk to the team <em>human</em></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">GATEWAY</span><div>Resolve tenant from the WABA number, dedupe with an <b>idempotency key</b>, open/refresh the <b>24h service window</b>, load tenant config <code>tier=1</code>, persona, <code>allowed_tools=[kb_search]</code>.</div></div>
+            <div class="xrow"><span class="chip c-act">ACTION</span><div>Greet + present a <b>list message</b> of the top intents (≤10 rows). Menu for the top 5, RAG for the long tail.</div></div>
+            <div class="xrow"><span class="chip c-free">● FREE</span><div>User messaged first → this whole session is a free service reply inside the window.</div></div>
+            <div class="xrow"><span class="chip c-metric">UI</span><div>Native WhatsApp <b>list message</b>. Tapping a row sends that choice back as plain text — no typing needed on mobile.</div></div>
+          </div>
+          <div class="branch">
+            <div class="bh">◆ DECISION · customer ignores the menu</div>
+            <p>Real users free-type. The menu is a shortcut, not a cage — the next stage handles arbitrary text. <b>This is the gap vs flow-builders</b> (Wati / AiSensy / Interakt), whose decision trees stall on anything off-script.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T1 · 02 INTENT -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">02</span><span class="name">Intent</span>
+        <span class="purpose">Customer types a messy, real-world question. The agent reads intent — including typos — and decides the route.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">B</span>
+              <div><div class="nm">BrightSmile Dental <span class="verifiedtick">✔</span></div><div class="st typing">typing…</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="b out"><div class="tx">do u do root canals n hw much roughly</div><div class="meta"><span class="tm">6:25 pm</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <div class="sys-note">⚙ agent is classifying intent &amp; retrieving — “typing…” shows in the header</div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">AGENT</span><div>Classify intent: <b>in-scope FAQ → pricing/services</b>. Decide route = answer from RAG (not handoff, not a tool).</div></div>
+            <div class="xrow"><span class="chip c-guard">GUARD</span><div>Purpose-scoped to <b>this clinic’s knowledge</b>. Open-domain questions (“write me a poem”) are declined or handed off — exactly what <b>Meta’s Jan 15 2026 policy</b> requires.</div></div>
+            <div class="xrow"><span class="chip c-data">NLU</span><div>LLM normalises <code>“hw much”→“how much”</code>, <code>“u”→“you”</code>. A keyword decision tree would miss this and fall through to a dead end.</div></div>
+          </div>
+          <div class="branch stop">
+            <div class="bh">◆ DECISION · out of scope</div>
+            <p>If intent ≠ anything this bot is built for → don’t improvise. Reply <code>“That’s outside what I can help with — connecting you to the team”</code> and route to the agent inbox. Staying on-task is both the policy-safe and the higher-converting design.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T1 · 03 RETRIEVE -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">03</span><span class="name">Retrieve&nbsp;·&nbsp;RAG</span>
+        <span class="purpose">The agent grounds itself in the client’s real documents before saying a word. No grounding, no answer.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">B</span>
+              <div><div class="nm">BrightSmile Dental <span class="verifiedtick">✔</span></div><div class="st typing">typing…</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body" style="min-height:200px;justify-content:center">
+              <div class="sys-note" style="max-width:94%">⚙ <b>retrieving</b> — searching this clinic’s vector namespace</div>
+              <div class="card" style="max-width:94%;align-self:center">
+                <div class="ch"><span class="ci">🔎</span><div><div class="ct">Top-k retrieval</div><div class="cs">per-tenant namespace · re-ranked</div></div></div>
+                <div class="cbody">
+                  <div class="krow"><b>chunk 1</b> price_list.pdf · “Endodontics — RCT”</div>
+                  <div class="krow"><b>chunk 2</b> services.md · “Single-sitting root canal”</div>
+                  <div class="krow"><b>chunk 3</b> faq.md · “Final quote after exam”</div>
+                  <div class="krow" style="color:#0a7d52"><b>score</b> 0.83 ✓ above threshold</div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">KNOWLEDGE</span><div>Vector search in the <b>tenant-scoped namespace</b> → top-k chunks → re-rank → assemble grounded context.</div></div>
+            <div class="xrow"><span class="chip c-data">DATA</span><div>Reads <code>price_list.pdf</code>, <code>services.md</code> ingested at onboarding. <b>Read-only</b>, this tenant only.</div></div>
+            <div class="xrow"><span class="chip c-guard">GUARD</span><div>Answer will be grounded <b>only</b> in retrieved chunks + a citation → hallucination risk near zero.</div></div>
+          </div>
+          <div class="branch stop">
+            <div class="bh">◆ DECISION · confidence gate</div>
+            <p>If top score <code>&lt; threshold</code> (no good chunk) → <b>do not guess</b>. Reply <code>“I want to get this right — let me bring in the team”</code> and hand off with the full transcript. Low confidence is a feature, not a failure.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T1 · 04 ANSWER -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">04</span><span class="name">Answer</span>
+        <span class="purpose">A grounded, specific reply — plus the obvious next step. The bot resolves the question and points forward.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">B</span>
+              <div><div class="nm">BrightSmile Dental <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="b in"><div class="tx">Yes — we do <strong>root canals</strong>, both single-sitting and multi-visit.
+
+Ballpark <strong>₹4,500–₹8,000</strong> depending on the tooth and the number of canals. The exact quote comes after a quick check-up, so nothing’s a surprise.</div>
+                <div class="tx" style="margin-top:6px;color:#667781;font-size:10.5px">📎 from our price list &amp; services page</div>
+                <div class="meta"><span class="tm">6:25 pm</span></div></div>
+              <div class="btns">
+                <div class="qbtn">📅 Book a check-up</div>
+                <div class="qbtn">💬 More on pricing</div>
+                <div class="qbtn ghost">Talk to the team</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">AGENT</span><div>Compose reply from the retrieved chunks, attach a soft <b>citation</b>, offer next actions as <b>reply buttons</b> (≤3).</div></div>
+            <div class="xrow"><span class="chip c-free">● FREE</span><div>Still inside the 24h window → no Meta charge. Only cost is the LLM call (<b>≈₹0.10–0.25</b>, small model).</div></div>
+            <div class="xrow"><span class="chip c-guard">GUARD</span><div><b>“Book a check-up”</b> is a hint, not an action — Tier 1 has <b>no booking tool</b>, so the bot literally cannot create a booking. That’s Tier 2.</div></div>
+            <div class="xrow"><span class="chip c-act">ACTION</span><div>Numbers come from the document, not the model’s memory — keeps pricing correct as the client edits their price list.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T1 · 05 RESOLVE -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">05</span><span class="name">Resolve&nbsp;+&nbsp;handoff</span>
+        <span class="purpose">Close warmly, capture a one-tap rating, and always keep a visible door to a human. Then log the deflection.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">B</span>
+              <div><div class="nm">BrightSmile Dental <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="b out"><div class="tx">thanks!</div><div class="meta"><span class="tm">6:26 pm</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <div class="b in"><div class="tx">Glad I could help 🙏 Anything else?</div><div class="meta"><span class="tm">6:26 pm</span></div></div>
+              <div class="btns">
+                <div class="qbtn">👍 That helped</div>
+                <div class="qbtn">👎 Not quite</div>
+                <div class="qbtn ghost">Talk to the team</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">ANALYTICS</span><div>Log a <b>deflection</b> (resolved without a human) + capture <b>CSAT</b> with one tap. Metrics: deflection rate, CSAT, resolution.</div></div>
+            <div class="xrow"><span class="chip c-act">ACTION</span><div>Every reply keeps a <b>“Talk to the team”</b> exit. A bot with no exit is worse than no bot.</div></div>
+            <div class="xrow"><span class="chip c-data">HANDOFF</span><div>👎 or “Talk to the team” → route to the <b>agent inbox</b> with the <b>full transcript + context</b>, so the customer never repeats themselves.</div></div>
+          </div>
+          <div class="branch">
+            <div class="bh">◆ DECISION · re-engage later (out of window)</div>
+            <p>If the clinic wants to nudge later (“your slot is free Sat”), the 24h window has closed → it must be a <b>paid Utility template</b> (<code>≈₹0.115</code>), not a free reply. This is the moment Tier 1 touches paid messaging.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /stages t1 -->
+
+  <!-- VERIFY · TIER 1 -->
+  <div class="verify">
+    <div class="vh"><span class="chip c-data">✓</span><span class="tag">Verified against competitors &amp; existing systems</span><span class="src">Tier 1 · Jun 2026</span></div>
+    <div class="vbody">
+      <div class="vcell">
+        <h5>Flow-builders break on free text</h5>
+        Wati, AiSensy, Interakt &amp; Landbot answer FAQs with rigid decision trees that stall on typos and off-script phrasing. Reliable handling of unscripted questions needs the LLM-RAG route shown above.
+        <span class="vs">✓ respond.io · dmchamp · 2026</span>
+      </div>
+      <div class="vcell">
+        <h5>Open-domain bots are now banned</h5>
+        From <b>Jan 15 2026</b> Meta prohibits general-purpose assistant bots; only purpose-scoped bots (FAQ, booking, order-tracking, surveys) are allowed. A scoped FAQ bot + clean handoff is the compliant pattern.
+        <span class="vs warn">⚠ Meta Business Solution Terms · digitalapplied</span>
+      </div>
+      <div class="vcell">
+        <h5>In-window replies are free</h5>
+        Since <b>Nov 1 2024</b>, customer-initiated service conversations inside the 24h window are free and unlimited. Tier 1’s only real variable cost is the LLM call — matching the blueprint’s cost model.
+        <span class="vs">✓ Meta for Developers · §7 cost model</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ TIER 2 ============================ -->
+  <section class="band t2" id="tier2">
+    <div class="band-top">
+      <div>
+        <div class="tier-id">TIER 2 · ACT</div>
+        <h2>Live-data / transactional bot</h2>
+        <p class="role">Everything in Tier 1, plus a typed <b>tool-calling</b> layer. The bot looks things up in real client systems and writes back — order status, booking, rescheduling, tickets — with a confirmation step before any change. It resolves real requests without a human.</p>
+        <div class="specrow">
+          <span class="spec">data&nbsp;<b>live (read + write)</b></span>
+          <span class="spec">write-back&nbsp;<b>yes</b></span>
+          <span class="spec">integration&nbsp;<b>medium — 1–2 APIs</b></span>
+          <span class="spec">core build&nbsp;<b>T1 + typed tools + state machine</b></span>
+          <span class="spec">key rule&nbsp;<b>model never touches the DB</b></span>
+        </div>
+      </div>
+      <div class="valuebox">
+        <span class="lbl">Example tenant</span>
+        <p><b>Kapde&nbsp;&amp;&nbsp;Co</b> — a D2C clothing store. The bot answers “where’s my order”, then <b>reschedules the delivery</b> — a real read + a real write, end to end.</p>
+      </div>
+    </div>
+    <div class="glance">
+      <span class="step"><b>01</b>&nbsp;Entry</span><span class="arr">→</span>
+      <span class="step"><b>02</b>&nbsp;Identify</span><span class="arr">→</span>
+      <span class="step"><b>03</b>&nbsp;Read&nbsp;tool</span><span class="arr">→</span>
+      <span class="step"><b>04</b>&nbsp;Confirm&nbsp;gate</span><span class="arr">→</span>
+      <span class="step"><b>05</b>&nbsp;Write-back</span><span class="arr">→</span>
+      <span class="step"><b>06</b>&nbsp;Receipt</span>
+    </div>
+  </section>
+
+  <div class="stages t2">
+
+    <!-- T2 · 01 ENTRY -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">01</span><span class="name">Entry</span>
+        <span class="purpose">A returning customer with a live concern. The agent recognises this needs real data, not a canned answer.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">K</span>
+              <div><div class="nm">Kapde &amp; Co <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="daypill">TODAY</div>
+              <div class="b out"><div class="tx">where is my order??</div><div class="meta"><span class="tm">11:02 am</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <div class="b in"><div class="tx">Hi Rahul 👋 Happy to track that. I can see two recent orders on your number — which one?</div><div class="meta"><span class="tm">11:02 am</span></div></div>
+              <div class="listsheet">
+                <div class="lh">Your recent orders<small>pulled live · last 60 days</small></div>
+                <div class="lrow"><span class="ri"></span> #A-2291 · Blue cotton kurta <em>2 days ago</em></div>
+                <div class="lrow"><span class="ri"></span> #A-2188 · Linen shirt <em>3 wks ago</em></div>
+                <div class="lrow"><span class="ri"></span> A different order <em></em></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">GATEWAY</span><div>Resolve tenant + window; load config <code>tier=2</code>, <code>allowed_tools=[get_orders, get_order, reschedule_delivery, create_ticket, escalate]</code>.</div></div>
+            <div class="xrow"><span class="chip c-layer">AGENT</span><div>Intent = <b>order status</b> → this needs live data → emit a tool call (it does <i>not</i> answer from memory).</div></div>
+            <div class="xrow"><span class="chip c-free">● FREE</span><div>Customer messaged first → free, in-window. <span class="arrowed">Contrast:</span> a proactive “your order shipped” nudge would be a <b>paid Utility template</b> (<code>≈₹0.115</code>).</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T2 · 02 IDENTIFY -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">02</span><span class="name">Identify</span>
+        <span class="purpose">Bind the request to a verified customer and a specific order — through the tool layer, never the model.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">K</span>
+              <div><div class="nm">Kapde &amp; Co <span class="verifiedtick">✔</span></div><div class="st typing">typing…</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body" style="min-height:220px">
+              <div class="b out"><div class="tx">the kurta one — #A-2291</div><div class="meta"><span class="tm">11:03 am</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <div class="sys-note" style="max-width:94%">⚙ resolving contact by phone → fetching order via tool layer</div>
+              <div class="card" style="max-width:94%">
+                <div class="ch"><span class="ci" style="background:#eef2ff">🔒</span><div><div class="ct">Tool layer · authenticated</div><div class="cs">tenant-scoped · contact = Rahul</div></div></div>
+                <div class="cbody">
+                  <div class="krow"><b>resolve</b> phone → contact_id (CRM)</div>
+                  <div class="krow"><b>call</b> <span style="font-family:'JetBrains Mono',monospace;color:#0a7d52">get_order(&quot;A-2291&quot;)</span></div>
+                  <div class="krow"><b>scope</b> this contact’s orders only</div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">TOOL</span><div>Resolve contact by phone in the CRM, then call <code>get_order(order_id)</code>. The model emits the <i>request</i>; the tool layer authenticates and executes.</div></div>
+            <div class="xrow"><span class="chip c-sec">🔒 SEC</span><div><b>Credentials live in the vault.</b> The prompt and the model never see the order DB or any secret — they only see the structured result.</div></div>
+            <div class="xrow"><span class="chip c-guard">GUARD</span><div>Tool is <b>scoped to this tenant + this contact</b> → Rahul can never read someone else’s order, no matter what he types.</div></div>
+          </div>
+          <div class="branch">
+            <div class="bh">◆ DECISION · sensitive action ahead?</div>
+            <p>Reading status from your own number is low-risk. For higher-risk actions (address change, refunds) the tool layer can require <b>light verification</b> (order ID already given, or an OTP) before proceeding.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T2 · 03 READ TOOL -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">03</span><span class="name">Read&nbsp;tool</span>
+        <span class="purpose">A deterministic, tested connector returns live status. The agent formats it; it doesn’t invent it.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">K</span>
+              <div><div class="nm">Kapde &amp; Co <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="card">
+                <div class="ch"><span class="ci">📦</span><div><div class="ct">Order #A-2291</div><div class="cs">Blue cotton kurta · ₹1,299</div></div></div>
+                <div class="cbody">
+                  <div class="statusline"><span class="sd"></span> Out for delivery</div>
+                  <div class="krow"><b>Arriving</b> today, by 7:00 pm</div>
+                  <div class="krow"><b>Courier</b> Delhivery</div>
+                  <div class="krow"><b>AWB</b> 1490 2237 8841</div>
+                </div>
+                <div class="cbtns"><div>🔗 Track live</div><div>📅 Reschedule</div></div>
+              </div>
+              <div class="btns"><div class="qbtn ghost">Report a problem</div></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">TOOL → INTEGRATION</span><div><code>get_order()</code> → Shopify / OMS adapter (or a read-through <code>orders_cache</code>) → typed result → agent formats a status card.</div></div>
+            <div class="xrow"><span class="chip c-data">DATA</span><div>Live read. Cache makes it fast and spares the client’s API; the connector is <b>unit-tested independently</b> of the LLM.</div></div>
+            <div class="xrow"><span class="chip c-free">● FREE</span><div>In-window service reply. LLM cost <b>≈₹0.25–0.45</b> (tool round-trip + bigger context).</div></div>
+          </div>
+          <div class="branch stop">
+            <div class="bh">◆ DECISION · order API is down</div>
+            <p>The <b>circuit breaker</b> trips → the bot does <i>not</i> hang or hallucinate a status. It replies <code>“I’ve logged this — our team will update you shortly”</code> and auto-creates a ticket via <code>create_ticket()</code>. Graceful degradation, every time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T2 · 04 CONFIRM GATE -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">04</span><span class="name">Confirm&nbsp;gate</span>
+        <span class="purpose">Collect the new slot in-chat, then stop and ask before changing anything. The agent proposes; the human approves.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">K</span>
+              <div><div class="nm">Kapde &amp; Co <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="b in"><div class="tx">Sure — pick a new delivery slot 👇</div><div class="meta"><span class="tm">11:04 am</span></div></div>
+              <div class="flowsheet">
+                <div class="fh">📅 Choose delivery slot</div>
+                <div class="ff">
+                  <div class="field active">Date <span>Sat, 28 Jun ▾</span></div>
+                  <div class="field active">Time window <span>10am – 1pm ▾</span></div>
+                  <div class="field">Notes <span>optional</span></div>
+                </div>
+                <div class="submit">Done</div>
+              </div>
+              <div class="card confirm">
+                <div class="ch"><span class="ci" style="background:#fff3df">⚠️</span><div><div class="ct">Please confirm</div><div class="cs">no change is saved yet</div></div></div>
+                <div class="cbody">
+                  <div class="krow"><b>Order</b> #A-2291</div>
+                  <div class="krow"><b>New slot</b> Sat, 28 Jun · 10am–1pm</div>
+                </div>
+                <div class="cbtns"><div class="go">✅ Confirm</div><div>✏️ Change</div><div class="stop">Cancel</div></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">AGENT</span><div>Run a <b>WhatsApp Flow</b> (date + time pickers) inside the chat. The Flow returns <code>nfm_reply</code> JSON with the chosen slot.</div></div>
+            <div class="xrow"><span class="chip c-dec">◆ GATE</span><div><b>Hard stop before any write.</b> The customer must tap <b>Confirm</b>. No confirmation → no side effect. The model proposes; the tool layer disposes.</div></div>
+            <div class="xrow"><span class="chip c-free">● FREE</span><div>The Flow opens inside the open window → free. <b>No separate Flow fee from Meta</b> — it’s billed like one template, and free in-window.</div></div>
+            <div class="xrow"><span class="chip c-metric">UI</span><div>A multi-screen native form beats a long Q&amp;A: no app-switch, identity pre-filled, completes in seconds → higher completion than a web link.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T2 · 05 WRITE-BACK -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">05</span><span class="name">Write-back</span>
+        <span class="purpose">On confirm, one tested tool writes to the system of record — once, validated, and audited.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">K</span>
+              <div><div class="nm">Kapde &amp; Co <span class="verifiedtick">✔</span></div><div class="st typing">typing…</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body" style="min-height:230px">
+              <div class="b out"><div class="tx">✅ Confirm</div><div class="meta"><span class="tm">11:04 am</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <div class="sys-note" style="max-width:94%">⚙ writing to courier · idempotency key set · audit logged</div>
+              <div class="card" style="max-width:94%">
+                <div class="ch"><span class="ci">⚙️</span><div><div class="ct">reschedule_delivery()</div><div class="cs">the only step that touches client systems</div></div></div>
+                <div class="cbody">
+                  <div class="krow"><b>validate</b> slot still available ✓</div>
+                  <div class="krow"><b>write</b> courier API → OK</div>
+                  <div class="krow"><b>idem-key</b> a2291-resched-28jun ✓ no double-write</div>
+                  <div class="krow"><b>audit</b> who / what / when logged</div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">TOOL → INTEGRATION</span><div><code>reschedule_delivery(order_id, slot)</code> → courier/OMS write. Re-validates availability before committing.</div></div>
+            <div class="xrow"><span class="chip c-sec">🔒 SEC</span><div>Idempotency key makes retries &amp; duplicate webhooks safe → <b>no double-write, no double-charge</b> (same pattern as your processed-events set).</div></div>
+            <div class="xrow"><span class="chip c-data">AUDIT</span><div>Every side effect lands in <code>audit_log</code>. Transient failures retry with backoff → <b>dead-letter queue</b>, never silently vanish.</div></div>
+            <div class="xrow"><span class="chip c-guard">GUARD</span><div>This is the <b>only</b> tool that mutates state, and it only ran because a tool exists <i>and</i> the customer confirmed.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T2 · 06 RECEIPT -->
+    <div class="stage">
+      <div class="stage-head"><span class="num">06</span><span class="name">Receipt&nbsp;+&nbsp;follow-up</span>
+        <span class="purpose">Confirm success in plain words, offer the next step, log a resolution — and set up the day-of reminder.</span></div>
+      <div class="grid">
+        <div class="phone-col">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="bk">‹</span><span class="av">K</span>
+              <div><div class="nm">Kapde &amp; Co <span class="verifiedtick">✔</span></div><div class="st">online</div></div>
+              <div class="ic"><span>⋮</span></div></div>
+            <div class="wa-body">
+              <div class="b in"><div class="tx">Done ✅ Your delivery for <strong>#A-2291</strong> is moved to <strong>Sat, 28 Jun, 10am–1pm</strong>. I’ll send a reminder that morning.</div><div class="meta"><span class="tm">11:04 am</span></div></div>
+              <div class="btns">
+                <div class="qbtn">📅 Add to calendar</div>
+                <div class="qbtn">📦 Track order</div>
+                <div class="qbtn ghost">Talk to the team</div>
+              </div>
+              <div class="b out"><div class="tx">perfect, thanks!</div><div class="meta"><span class="tm">11:05 am</span>
+                <svg class="tick" viewBox="0 0 16 11" fill="none"><path d="M1 6l3 3 6-7M6 9l6-7" stroke="#53BDEB" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="xray-col">
+          <div class="xray">
+            <p class="xt">Behind the glass</p>
+            <div class="xrow"><span class="chip c-layer">AGENT → ANALYTICS</span><div>Plain-language receipt; log a <b>resolution</b> (resolved without a human) + CSAT. Metric: resolution rate.</div></div>
+            <div class="xrow"><span class="chip c-paid">● PAID</span><div>The <b>day-of reminder</b> fires after the window closes → a <b>Utility template</b> (<code>≈₹0.115</code>), sent by a cron job calling the <b>same tool layer</b> — no LLM, no token cost.</div></div>
+            <div class="xrow"><span class="chip c-act">ACTION</span><div>Handoff exit stays present to the end. The full thread is on record for the agent inbox if Rahul comes back.</div></div>
+          </div>
+          <div class="branch">
+            <div class="bh">◆ NEXT TIER · this is where Tier 3 begins</div>
+            <p>Chaining several tools across systems with branching + approvals — abandoned-cart recovery, pay-in-thread, campaigns — is <b>Tier 3 (orchestration / LangGraph)</b>. Tier 2 stops at single, confirmed actions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /stages t2 -->
+
+  <!-- VERIFY · TIER 2 -->
+  <div class="verify">
+    <div class="vh"><span class="chip c-data">✓</span><span class="tag">Verified against competitors &amp; existing systems</span><span class="src">Tier 2 · Jun 2026</span></div>
+    <div class="vbody">
+      <div class="vcell">
+        <h5>Order-tracking is proven on WhatsApp</h5>
+        Merchants on Interakt / Wati report support response times down ~70% and ~30% more carts recovered once tracking &amp; updates run in-chat — the exact Tier 2 read-flow shown above.
+        <span class="vs">✓ Interakt · Zoko case notes · 2026</span>
+      </div>
+      <div class="vcell">
+        <h5>Real intent + write-back is the moat</h5>
+        Native intent matching without exact keywords needs Interakt’s paid <b>Haptik</b> add-on (₹10k+/mo); flow-builders can’t reliably run unscripted multi-step actions. The typed-tool agent does both natively.
+        <span class="vs warn">⚠ zoko · respond.io · dmchamp</span>
+      </div>
+      <div class="vcell">
+        <h5>Never auto-execute money/state moves</h5>
+        Across the market, AI does <b>not</b> place orders, refund, or cancel on its own — a human stays in the loop. The Confirm gate (stage 04) is the standard, not an extra.
+        <span class="vs">✓ go4whatsup · Alibaba Cloud · §4.3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <h4>Reading this as a build spec</h4>
+    <p style="max-width:80ch;color:var(--ink-2)">Both journeys run on <b>one multi-tenant platform</b>; a tenant’s tier is a config flag that switches tools on, not a separate codebase — so Tier&nbsp;1’s five stages are literally the first five of Tier&nbsp;2. The left column is the only thing the customer ever sees; the right column is where your reliability, cost control, and guardrails actually live. Every number here is a <b>placeholder with a source</b> — Meta adjusts rates every 6–12 months, so re-verify quarterly.</p>
+    <p class="srcs">
+      VERIFIED JUN 2026 · SOURCES —<br>
+      Meta for Developers (service messages, interactive components, WhatsApp Flows, 24h window) · Meta WhatsApp Business Solution Terms (Jan 15 2026 AI policy) ·<br>
+      WhatsApp Business Conversational Marketing Playbook 2026 (digitalapplied) · respond.io · dmchamp · go4whatsup · Alibaba Cloud Chat App · Whautomate / MercaBot (Flows) ·<br>
+      Indian BSP comparison: Wati · AiSensy · Interakt · Zoko · LeminAi · Gallabox.<br>
+      INTERNAL — WhatsApp Automation Blueprint (Zernio white-label): §2 segmentation · §3 tier scope · §4 architecture · §5 schema · §6 reliability · §7 cost model.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

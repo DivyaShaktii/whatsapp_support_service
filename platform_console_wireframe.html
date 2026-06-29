@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform Console Wireframe — Client Onboarding & Dashboard · Tier 1 & Tier 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1B22; --ink-soft:#33454D; --muted:#6B7B82; --faint:#9AA8AD;
+    --canvas:#E8EDED; --surface:#FFFFFF; --surface-2:#F2F6F5; --surface-3:#EAF0EF;
+    --line:#E1E8E7; --line-2:#CFD9D7; --line-3:#B9C6C3;
+    --brand:#0BA777; --brand-2:#0A6E50; --brand-soft:#E4F6EF; --brand-line:#BCE7D7;
+    --t2:#5A63E8; --t2-2:#3A41B8; --t2-soft:#ECEDFC; --t2-line:#CBD0F7;
+    --amber:#C9871E; --amber-soft:#FBF1DC; --red:#D9466A; --red-soft:#FBE6EC;
+    --blue:#2F73A0; --blue-soft:#E6F0F6;
+    --radius:14px; --maxw:1280px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; background:var(--canvas); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 480px at 88% -6%, rgba(11,167,119,.08), transparent 60%),
+      radial-gradient(700px 460px at 2% 2%, rgba(90,99,232,.06), transparent 60%);}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:66px 0 8px; position:relative; overflow:hidden}
+  .hero::before{content:""; position:absolute; inset:0; opacity:.55; z-index:0;
+    background-image:linear-gradient(rgba(11,167,119,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(11,167,119,.10) 1px,transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(620px 320px at 24% 38%,#000,transparent 72%);
+            mask-image:radial-gradient(620px 320px at 24% 38%,#000,transparent 72%);}
+  .hero .wrap{position:relative; z-index:1}
+  .eyebrow{font-family:"JetBrains Mono",monospace; font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--brand-2); display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px rgba(11,167,119,.16)}
+  h1{font-family:"Space Grotesk",sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(30px,5vw,52px);
+    line-height:1.04; margin:.4em 0 .28em; max-width:20ch}
+  h1 em{font-style:normal; color:var(--brand)}
+  .lede{font-size:clamp(15px,1.6vw,18px); color:var(--ink-soft); max-width:74ch; margin:0}
+
+  /* who's who strip */
+  .whois{margin:24px 0 0; display:flex; align-items:stretch; gap:0; flex-wrap:wrap; border:1px solid var(--line-2);
+    border-radius:var(--radius); overflow:hidden; background:var(--surface)}
+  .who{flex:1 1 200px; padding:14px 16px; border-right:1px solid var(--line); position:relative}
+  .who:last-child{border-right:0}
+  .who .k{font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint)}
+  .who .v{font-weight:600; font-size:15px; margin-top:3px}
+  .who .d{font-size:12.5px; color:var(--muted); margin-top:2px}
+  .who.me{background:var(--brand-soft)} .who.me .k{color:var(--brand-2)}
+  .who .arrow{position:absolute; right:-10px; top:50%; transform:translateY(-50%); z-index:2; width:20px;height:20px;
+    background:var(--surface); border:1px solid var(--line-2); border-radius:50%; display:grid; place-items:center;
+    font-size:11px; color:var(--muted)}
+  @media(max-width:780px){ .who{border-right:0; border-bottom:1px solid var(--line)} .who .arrow{display:none} }
+  .scope-note{margin-top:12px; font-size:13px; color:var(--muted); display:flex; gap:8px; align-items:flex-start}
+  .scope-note b{color:var(--ink-soft)}
+
+  /* legend */
+  .legend{margin:22px 0 4px; display:flex; gap:18px 26px; flex-wrap:wrap; align-items:center; font-size:13px; color:var(--ink-soft)}
+  .legend .li{display:flex; gap:8px; align-items:center}
+  .tb{font-family:"JetBrains Mono",monospace; font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:5px; letter-spacing:.02em}
+  .tb.t1{color:var(--brand-2); background:var(--brand-soft); border:1px solid var(--brand-line)}
+  .tb.t2{color:var(--t2-2); background:var(--t2-soft); border:1px solid var(--t2-line)}
+  .tb.lock{color:var(--amber); background:var(--amber-soft); border:1px solid #ecdcb5}
+  .maps-k{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--blue); background:var(--blue-soft); border:1px solid #cfe2ed; padding:1px 6px; border-radius:5px}
+
+  /* ---------- PART BAND ---------- */
+  .partband{margin:58px 0 10px; padding:20px 22px; border:1px solid var(--line-2); border-radius:18px;
+    background:linear-gradient(180deg,var(--surface),var(--surface-2)); position:relative; overflow:hidden}
+  .partband::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--brand)}
+  .partband.b{ }
+  .partband .pid{font-family:"JetBrains Mono",monospace; font-size:12px; letter-spacing:.16em; color:var(--brand-2)}
+  .partband h2{font-family:"Space Grotesk",sans-serif; font-size:clamp(23px,3.2vw,32px); font-weight:700; letter-spacing:-.015em; margin:5px 0 5px}
+  .partband p{margin:0; color:var(--ink-soft); font-size:15px; max-width:78ch}
+
+  /* stepper */
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
+  .stp{font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink-soft); border:1px solid var(--line-2);
+    background:var(--surface); border-radius:999px; padding:5px 11px; display:flex; gap:7px; align-items:center}
+  .stp b{color:var(--brand)} .stp .arr{color:var(--faint)}
+
+  /* ---------- SCREEN BLOCK ---------- */
+  .block{margin:30px 0 0; display:grid; grid-template-columns:1.55fr 1fr; gap:26px; align-items:start}
+  @media(max-width:980px){ .block{grid-template-columns:1fr; gap:16px} }
+  .block + .block{margin-top:34px; padding-top:34px; border-top:1px dashed var(--line-2)}
+  .blockhead{grid-column:1 / -1; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:2px}
+  .blockhead .n{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:26px; color:var(--brand); line-height:1}
+  .blockhead .t{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:19px; letter-spacing:-.01em}
+  .blockhead .sub{font-size:13.5px; color:var(--muted); flex:1 1 240px}
+
+  /* ---------- BROWSER FRAME ---------- */
+  .frame{border-radius:13px; overflow:hidden; border:1px solid var(--line-2); background:var(--surface);
+    box-shadow:0 18px 44px -22px rgba(14,27,34,.42)}
+  .fbar{display:flex; align-items:center; gap:8px; padding:9px 12px; background:#E7ECEC; border-bottom:1px solid var(--line-2)}
+  .fbar .dots{display:flex; gap:6px} .fbar .dots i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .fbar .dots i:nth-child(1){background:#F0625C}.fbar .dots i:nth-child(2){background:#F5BD4F}.fbar .dots i:nth-child(3){background:#54C04A}
+  .url{flex:1; background:#fff; border:1px solid var(--line-2); border-radius:7px; padding:5px 10px;
+    font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted); display:flex; gap:7px; align-items:center}
+  .url b{color:var(--ink-soft); font-weight:500} .url .lk{color:var(--brand)}
+  .wl-tag{font-family:"JetBrains Mono",monospace; font-size:9.5px; color:var(--faint); white-space:nowrap}
+
+  /* ---------- CONSOLE SHELL ---------- */
+  .shell{display:flex; min-height:300px; background:var(--surface)}
+  .rail{flex:0 0 52px; background:var(--ink); padding:12px 0; display:flex; flex-direction:column; align-items:center; gap:3px}
+  .rail .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand),#0bd49a);
+    display:grid;place-items:center;color:#04231a;font-weight:700;font-size:14px;margin-bottom:10px;font-family:"Space Grotesk",sans-serif}
+  .rail .it{width:34px;height:30px;border-radius:8px;display:grid;place-items:center;color:#7e9098;font-size:14px;position:relative}
+  .rail .it.on{background:rgba(11,167,119,.18); color:#37e3a8; box-shadow:inset 2px 0 0 var(--brand)}
+  .rail .it.t2{color:#9aa0f2}
+  .rail .it.lock::after{content:"🔒"; position:absolute; right:1px; top:0; font-size:8px}
+  .rail .sp{flex:1}
+  .work{flex:1; min-width:0; display:flex; flex-direction:column}
+  .topbar{display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--line); background:var(--surface)}
+  .ws{display:flex; align-items:center; gap:8px; font-weight:600; font-size:13.5px}
+  .ws .wa{width:22px;height:22px;border-radius:6px;background:#1d2b33;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700}
+  .ws .ca{color:var(--faint); font-size:11px}
+  .num{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted); border:1px solid var(--line-2); border-radius:6px; padding:3px 8px}
+  .livebadge{font-family:"JetBrains Mono",monospace; font-size:10px; font-weight:600; color:#0a7d52; background:var(--brand-soft);
+    border:1px solid var(--brand-line); padding:3px 8px; border-radius:999px; display:flex; gap:5px; align-items:center}
+  .livebadge .d{width:6px;height:6px;border-radius:50%;background:#10b981}
+  .livebadge.draft{color:var(--amber); background:var(--amber-soft); border-color:#ecdcb5}
+  .livebadge.draft .d{background:var(--amber)}
+  .tierbadge{margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:10px; font-weight:600; padding:3px 9px; border-radius:999px}
+  .tierbadge.t1{color:var(--brand-2); background:var(--brand-soft); border:1px solid var(--brand-line)}
+  .tierbadge.t2{color:var(--t2-2); background:var(--t2-soft); border:1px solid var(--t2-line)}
+  .content{padding:15px 16px; flex:1}
+  .ph{display:flex; align-items:center; justify-content:space-between; margin-bottom:13px; gap:10px; flex-wrap:wrap}
+  .ph h3{font-family:"Space Grotesk",sans-serif; font-size:16px; font-weight:600; margin:0}
+  .ph .sub{font-size:11.5px; color:var(--muted)}
+
+  /* small UI primitives */
+  .btn{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:7px 12px; border-radius:8px;
+    background:var(--brand); color:#fff; border:1px solid var(--brand); cursor:default}
+  .btn.sm{padding:5px 10px; font-size:11px}
+  .btn.ghost{background:#fff; color:var(--ink-soft); border-color:var(--line-2)}
+  .btn.t2{background:var(--t2); border-color:var(--t2)}
+  .btn.wa{background:#0a7d52; border-color:#0a7d52}
+  .field{border:1px solid var(--line-2); border-radius:9px; padding:9px 11px; font-size:12.5px; color:var(--ink-soft);
+    display:flex; justify-content:space-between; align-items:center; background:#fff; margin-bottom:9px}
+  .field .lab{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-family:"JetBrains Mono",monospace}
+  .field .val{font-weight:500; color:var(--ink)}
+  .field.sel .val{color:var(--ink)} .field .cur{color:var(--faint); font-weight:400}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:9px}
+  @media(max-width:520px){ .grid2,.grid3{grid-template-columns:1fr} }
+
+  .kpi{border:1px solid var(--line); border-radius:11px; padding:11px 12px; background:var(--surface-2)}
+  .kpi .lab{font-size:10.5px; color:var(--muted); display:flex; gap:5px; align-items:center}
+  .kpi .big{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:23px; letter-spacing:-.01em; margin-top:3px; line-height:1}
+  .kpi .chg{font-size:10.5px; margin-top:3px; font-family:"JetBrains Mono",monospace}
+  .kpi .chg.up{color:#0a8a5b} .kpi .chg.dn{color:var(--red)} .kpi .chg.flat{color:var(--muted)}
+  .kpi.t2{background:var(--t2-soft); border-color:var(--t2-line)}
+
+  .tag{font-family:"JetBrains Mono",monospace; font-size:9.5px; font-weight:600; padding:2px 6px; border-radius:5px; white-space:nowrap}
+  .tag.ok{color:#0a7d52;background:var(--brand-soft);border:1px solid var(--brand-line)}
+  .tag.pend{color:var(--amber);background:var(--amber-soft);border:1px solid #ecdcb5}
+  .tag.err{color:var(--red);background:var(--red-soft);border:1px solid #f1cdd6}
+  .tag.run{color:var(--blue);background:var(--blue-soft);border:1px solid #cfe2ed}
+  .tag.muted{color:var(--muted);background:#eef2f1;border:1px solid var(--line-2)}
+
+  .lst{border:1px solid var(--line); border-radius:11px; overflow:hidden; background:#fff}
+  .lrow{display:flex; align-items:center; gap:10px; padding:9px 12px; border-top:1px solid var(--line); font-size:12.5px}
+  .lrow:first-child{border-top:0}
+  .lrow .ic{width:24px;height:24px;border-radius:7px;background:var(--surface-3);display:grid;place-items:center;font-size:12px;flex:0 0 auto}
+  .lrow .nm{font-weight:500} .lrow .mt{color:var(--muted); font-size:11px}
+  .lrow .rt{margin-left:auto; display:flex; gap:7px; align-items:center}
+  .bar{height:6px; border-radius:4px; background:#e7eceb; overflow:hidden; margin-top:6px}
+  .bar i{display:block; height:100%; background:var(--brand); border-radius:4px}
+  .bar i.t2{background:var(--t2)} .bar i.am{background:var(--amber)}
+
+  .tbl{width:100%; border-collapse:collapse; font-size:12px; background:#fff; border:1px solid var(--line); border-radius:11px; overflow:hidden}
+  .tbl th{ text-align:left; font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); font-weight:600; padding:8px 11px; background:var(--surface-2); border-bottom:1px solid var(--line)}
+  .tbl td{padding:8px 11px; border-bottom:1px solid var(--line); color:var(--ink-soft)}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl td b{color:var(--ink); font-weight:600}
+
+  /* upload zone */
+  .drop{border:1.5px dashed var(--line-3); border-radius:11px; padding:14px; text-align:center; color:var(--muted); font-size:12px; background:var(--surface-2); margin-bottom:11px}
+  .drop b{color:var(--ink-soft)}
+
+  /* connect-wa hero */
+  .connect{border:1px solid var(--brand-line); border-radius:12px; background:var(--brand-soft); padding:16px; text-align:center}
+  .connect .ttl{font-weight:600; font-size:14px}
+  .connect .meta-pop{margin-top:12px; border:1px solid var(--line-2); border-radius:10px; background:#fff; text-align:left; overflow:hidden}
+  .meta-pop .mh{padding:8px 11px; background:#f6f7f9; border-bottom:1px solid var(--line); font-size:11px; color:var(--muted); display:flex; justify-content:space-between}
+  .meta-pop .mb{padding:11px; font-size:12px}
+  .stepline{display:flex; gap:8px; align-items:center; padding:5px 0; font-size:12px}
+  .stepline .ck{width:17px;height:17px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:10px;flex:0 0 auto}
+  .stepline .ck.now{background:#fff;border:2px solid var(--brand);color:var(--brand)}
+  .stepline .ck.todo{background:#fff;border:2px solid var(--line-2);color:transparent}
+
+  /* toggle row */
+  .tog{display:flex; align-items:center; justify-content:space-between; padding:9px 11px; border:1px solid var(--line); border-radius:9px; margin-bottom:8px; font-size:12.5px; background:#fff}
+  .tog .sw{width:34px;height:19px;border-radius:99px;background:var(--brand);position:relative;flex:0 0 auto}
+  .tog .sw::after{content:"";position:absolute;width:15px;height:15px;border-radius:50%;background:#fff;top:2px;right:2px}
+  .tog .sw.off{background:#d3dad9} .tog .sw.off::after{right:auto;left:2px}
+  .tog .sw.locked{background:var(--brand); opacity:.85}
+  .tog small{color:var(--muted); font-size:10.5px; display:block; margin-top:1px}
+
+  /* inbox split */
+  .inbox{display:grid; grid-template-columns:150px 1fr 120px; gap:0; border:1px solid var(--line); border-radius:11px; overflow:hidden; min-height:208px}
+  @media(max-width:620px){ .inbox{grid-template-columns:1fr} .inbox .conv-prof{display:none} .inbox .conv-list{display:none} }
+  .conv-list{border-right:1px solid var(--line); background:var(--surface-2)}
+  .conv-list .ci{padding:9px 10px; border-bottom:1px solid var(--line); font-size:11.5px; cursor:default}
+  .conv-list .ci.on{background:#fff; box-shadow:inset 2px 0 0 var(--brand)}
+  .conv-list .ci .nm{font-weight:600} .conv-list .ci .pv{color:var(--muted); font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .conv-list .ci .badge{font-size:8.5px}
+  .thread{padding:10px; display:flex; flex-direction:column; gap:6px; background:#fff}
+  .tb-msg{max-width:78%; font-size:11px; padding:6px 8px; border-radius:8px}
+  .tb-msg.inb{background:var(--surface-3); align-self:flex-start}
+  .tb-msg.out{background:var(--brand-soft); align-self:flex-end}
+  .tb-msg .by{font-size:8.5px; color:var(--muted); margin-bottom:1px; font-family:"JetBrains Mono",monospace}
+  .thread .reply{margin-top:auto; border:1px solid var(--line-2); border-radius:8px; padding:7px 9px; font-size:11px; color:var(--faint); display:flex; justify-content:space-between; align-items:center}
+  .conv-prof{border-left:1px solid var(--line); padding:10px; background:var(--surface-2); font-size:11px}
+  .conv-prof .av{width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;margin-bottom:7px}
+  .conv-prof .pk{color:var(--faint); font-size:9px; text-transform:uppercase; letter-spacing:.06em; margin-top:7px; font-family:"JetBrains Mono",monospace}
+
+  /* ---------- ANNOTATION RAIL ---------- */
+  .anno{border:1px solid var(--line-2); border-radius:13px; background:linear-gradient(180deg,#fff,var(--surface-2)); padding:15px 16px; position:sticky; top:14px}
+  .anno .at{font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+    margin:0 0 11px; display:flex; align-items:center; gap:8px}
+  .anno .at::after{content:"";flex:1;height:1px;background:var(--line)}
+  .anno ul{list-style:none; margin:0; padding:0}
+  .anno li{position:relative; padding:0 0 9px 17px; font-size:13px; color:var(--ink-soft); border-bottom:1px dotted var(--line); margin-bottom:9px}
+  .anno li:last-of-type{border-bottom:0; margin-bottom:6px}
+  .anno li::before{content:""; position:absolute; left:1px; top:7px; width:6px;height:6px;border-radius:50%;background:var(--brand)}
+  .anno li.t2::before{background:var(--t2)} .anno li.warn::before{background:var(--amber)} .anno li.sec::before{background:var(--blue)}
+  .anno li b{color:var(--ink); font-weight:600}
+  .anno li code{font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--t2-2); background:var(--t2-soft); padding:1px 5px; border-radius:4px}
+  .anno .maps{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); font-family:"JetBrains Mono",monospace; font-size:10.5px; color:var(--muted); line-height:1.7}
+  .anno .maps b{color:var(--blue)}
+  .tierchips{display:flex; gap:6px; margin-bottom:11px; flex-wrap:wrap}
+
+  /* ---------- TIER MATRIX ---------- */
+  .matrix{margin:54px 0 0}
+  .matrix h2{font-family:"Space Grotesk",sans-serif; font-size:26px; font-weight:700; letter-spacing:-.015em; margin:0 0 6px}
+  .matrix p{color:var(--ink-soft); font-size:14.5px; margin:0 0 16px; max-width:74ch}
+  .mtbl{width:100%; border-collapse:collapse; font-size:13px; background:#fff; border:1px solid var(--line-2); border-radius:13px; overflow:hidden}
+  .mtbl th{text-align:left; padding:11px 14px; background:var(--surface-2); border-bottom:1px solid var(--line-2); font-size:12px}
+  .mtbl th.c{text-align:center; width:130px}
+  .mtbl th.t1c{color:var(--brand-2)} .mtbl th.t2c{color:var(--t2-2)}
+  .mtbl td{padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+  .mtbl td.c{text-align:center}
+  .mtbl tr:last-child td{border-bottom:0}
+  .mtbl .feat{font-weight:600; color:var(--ink)}
+  .mtbl .desc{color:var(--muted); font-size:11.5px; margin-top:2px}
+  .yes{color:#0a8a5b; font-weight:700} .opt{color:var(--amber); font-weight:600; font-size:11px}
+  .no{color:var(--faint)}
+  .sect-td{background:var(--surface-3); font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600}
+
+  footer{margin:60px 0 56px; border-top:1px solid var(--line-2); padding-top:22px; color:var(--muted); font-size:13px}
+  footer h4{font-family:"Space Grotesk",sans-serif; color:var(--ink); margin:0 0 8px; font-size:16px}
+  footer .map{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--faint); margin-top:12px; line-height:1.9}
+  footer code{color:var(--ink-soft)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .block,.partband,.matrix{opacity:0; transform:translateY(12px); animation:rise .55s ease forwards}
+    @keyframes rise{to{opacity:1; transform:none}}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> Platform console · white-label · Blueprint §4.1 Layer 8 · Control plane</div>
+    <h1>Onboard a client, then <em>run their bot</em> — from one console.</h1>
+    <p class="lede">This is the software <b>your clients</b> log into — a real-estate agency, a coaching institute, a clinic. It’s the admin surface of your white-label platform: a guided <b>onboarding wizard</b>, then a <b>day-to-day dashboard</b>. Shown for the two tiers you sell first.</p>
+
+    <div class="whois">
+      <div class="who me"><div class="k">You — the platform</div><div class="v">Your brand’s console</div><div class="d">one multi-tenant codebase</div><div class="arrow">→</div></div>
+      <div class="who"><div class="k">Your client (tenant)</div><div class="v">Skyline Realty · BrightPath Coaching</div><div class="d">logs into this console</div><div class="arrow">→</div></div>
+      <div class="who"><div class="k">Their customer</div><div class="v">Home-buyers · Students</div><div class="d">chats on WhatsApp</div></div>
+    </div>
+    <p class="scope-note">◷ <span><b>This wireframe = the middle box</b> — what your client sees when they sign up and operate their bot. The WhatsApp chat the end-customer sees is the separate journey wireframe.</span></p>
+
+    <div class="legend">
+      <span class="li"><span class="tb t1">T1</span> Answer — included</span>
+      <span class="li"><span class="tb t2">T2</span> Act — adds live data + write-back</span>
+      <span class="li"><span class="tb lock">🔒 T2</span> Tier-2 capability (gated for T1 clients)</span>
+      <span class="li"><span class="maps-k">Maps to</span> the Blueprint layer / table it implements</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============================ PART A — ONBOARDING ============================ -->
+<section class="partband" id="onboarding">
+  <div class="pid">PART A · ONBOARDING WIZARD</div>
+  <h2>Self-serve setup — connected and live in one sitting</h2>
+  <p>A new client lands here after you send them a sign-up link. The wizard front-loads the build work (the “Setup / onboarding” revenue line in §8) and filters non-serious leads. Tier is set by the plan they pick; the same wizard simply shows more steps for Tier&nbsp;2.</p>
+  <div class="stepper">
+    <span class="stp"><b>1</b> Create workspace</span><span class="arr">→</span>
+    <span class="stp"><b>2</b> Connect WhatsApp</span><span class="arr">→</span>
+    <span class="stp"><b>3</b> Knowledge base</span><span class="arr">→</span>
+    <span class="stp"><b>4</b> Assistant &amp; rules</span><span class="arr">→</span>
+    <span class="stp"><b>5</b> Quick menus</span><span class="arr">→</span>
+    <span class="stp"><b>6</b> Connect systems <span style="color:var(--t2)">T2</span></span><span class="arr">→</span>
+    <span class="stp"><b>7</b> Templates &amp; go live</span>
+  </div>
+</section>
+
+<!-- STEP 1 -->
+<div class="block">
+  <div class="blockhead"><span class="n">1</span><span class="t">Create workspace</span><span class="sub">Identify the business and pick a plan. The plan choice sets the tier.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/<b>onboarding</b></span><span class="wl-tag">white-label · your domain</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Tell us about your business</h3><span class="sub">Step 1 of 7</span></div>
+      <div class="field sel"><span class="lab">Business name</span><span class="val">Skyline Realty</span></div>
+      <div class="grid2">
+        <div class="field sel"><span class="lab">Industry</span><span class="val">Real estate ▾</span></div>
+        <div class="field sel"><span class="lab">Team size</span><span class="val">2–10 ▾</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0 9px">Choose your plan — this sets your tier and what your bot can do.</div>
+      <div class="grid3">
+        <div class="kpi" style="border:1.5px solid var(--brand);background:var(--brand-soft)"><div class="lab"><span class="tb t1">T1</span> Starter</div><div class="big" style="font-size:18px">Answer</div><div class="chg flat">FAQ · RAG bot</div></div>
+        <div class="kpi t2" style="border:1.5px solid var(--t2)"><div class="lab"><span class="tb t2">T2</span> Growth</div><div class="big" style="font-size:18px">Act</div><div class="chg flat" style="color:var(--t2-2)">+ live data + booking</div></div>
+        <div class="kpi"><div class="lab">Pro</div><div class="big" style="font-size:18px">Transact</div><div class="chg flat">+ payments + campaigns</div></div>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end"><span class="btn">Continue →</span></div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li>Creates the <b>tenant record</b> — org, plan, status — the root of all isolation and billing.</li>
+      <li><b>Plan ⇒ tier flag.</b> Picking Growth flips this account to Tier 2; the codebase doesn’t fork, a config switches on tools.</li>
+      <li>Industry pre-loads a <b>starter pack</b> — real-estate menus &amp; sample docs, or coaching equivalents — so step 3 isn’t a blank page.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>tenants</b> table · §5.2 · tier = config flag (§0, §4)</div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="block">
+  <div class="blockhead"><span class="n">2</span><span class="t">Connect WhatsApp</span><span class="sub">One click via Meta Embedded Signup. No Meta App Review, no developer.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/onboarding/<b>connect</b></span><span class="wl-tag">step 2 of 7</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Connect your WhatsApp number</h3></div>
+      <div class="connect">
+        <div class="ttl">Bring your number onto WhatsApp in one click</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:4px">We provision the WhatsApp Business Account for you — no Meta App Review.</div>
+        <div style="margin-top:11px"><span class="btn wa">⚡ Connect with WhatsApp</span></div>
+        <div class="meta-pop">
+          <div class="mh"><span>Meta · Embedded Signup</span><span class="mono">via Zernio</span></div>
+          <div class="mb">
+            <div class="stepline"><span class="ck">✓</span> Log in with Facebook / Business</div>
+            <div class="stepline"><span class="ck">✓</span> Select or create a WhatsApp Business Account</div>
+            <div class="stepline"><span class="ck now">2</span> Verify number <b style="margin-left:4px">+91 98•• ••3344</b></div>
+            <div class="stepline"><span class="ck todo"></span> Display name approval</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li><b>Layer 1 — Channel.</b> Zernio acts as the Tech Provider: it provisions the WABA and number through Meta Embedded Signup.</li>
+      <li class="warn">Meta’s consent screen shows <b>Zernio branding</b> — a fundamental Tech-Provider constraint, not a bug. Set expectations with the client here.</li>
+      <li>On success, the number + WABA id are stored so every inbound webhook resolves to this tenant.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>channels</b> table (WABA id, number, Zernio ref) · Layer 1 · §4.1</div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="block">
+  <div class="blockhead"><span class="n">3</span><span class="t">Knowledge base</span><span class="sub"><span class="tb t1">T1+</span> Upload the docs the bot should answer from. Indexed per tenant.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/onboarding/<b>knowledge</b></span><span class="wl-tag">step 3 of 7</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Teach your assistant</h3><span class="sub">namespace · skyline-realty</span></div>
+      <div class="drop">⬆ Drag in brochures, price lists, policies, listings &nbsp;·&nbsp; <b>PDF, DOCX, CSV, or a website link</b></div>
+      <div class="lst">
+        <div class="lrow"><span class="ic">📄</span><div><div class="nm">price-list-2026.pdf</div><div class="mt">142 chunks</div></div><div class="rt"><span class="tag ok">Indexed ✓</span></div></div>
+        <div class="lrow"><span class="ic">📄</span><div><div class="nm">project-brochure.pdf</div><div class="mt">88 chunks</div></div><div class="rt"><span class="tag ok">Indexed ✓</span></div></div>
+        <div class="lrow"><span class="ic">📊</span><div><div class="nm">available-units.csv</div><div class="mt">36 rows</div></div><div class="rt"><span class="tag run">Indexing…</span></div></div>
+        <div class="lrow"><span class="ic">🌐</span><div><div class="nm">skylinerealty.in</div><div class="mt">crawled 24 pages</div></div><div class="rt"><span class="tag ok">Indexed ✓</span></div></div>
+      </div>
+      <div class="field" style="margin-top:11px;background:var(--surface-2)"><span class="lab">Try it</span><span class="cur">“what’s the price of a 2BHK in Tower B?” →</span></div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li><b>Layer 5 — Knowledge.</b> Each file is chunked, embedded, and stored in this tenant’s <b>own vector namespace</b> — never mixed with other clients.</li>
+      <li>The “Try it” box lets the client confirm coverage before going live, and spot gaps.</li>
+      <li>Re-uploading a price list updates answers instantly — the bot reads the doc, not a hard-coded reply.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>knowledge_sources</b> table · per-tenant namespace · §5.2, §2.2</div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="block">
+  <div class="blockhead"><span class="n">4</span><span class="t">Assistant &amp; rules</span><span class="sub">Persona, languages, hours — and the guardrails that keep it compliant.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/onboarding/<b>assistant</b></span><span class="wl-tag">step 4 of 7</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Shape your assistant</h3></div>
+      <div class="grid2">
+        <div class="field sel"><span class="lab">Assistant name</span><span class="val">Skyline Assistant</span></div>
+        <div class="field sel"><span class="lab">Tone</span><span class="val">Professional ▾</span></div>
+        <div class="field sel"><span class="lab">Languages</span><span class="val">English · हिंदी</span></div>
+        <div class="field sel"><span class="lab">Business hours</span><span class="val">Mon–Sat 9–7 ▾</span></div>
+      </div>
+      <div class="field sel" style="display:block"><span class="lab">Greeting</span><div class="val" style="font-weight:400;margin-top:3px">“Hi 👋 You’re chatting with Skyline Realty. Ask me about projects, pricing or site visits.”</div></div>
+      <div class="tog"><div>Hand off to a human on request <small>always keep a “Talk to an agent” exit</small></div><span class="sw"></span></div>
+      <div class="tog"><div>Restrict to business topics only <small>required by Meta’s 2026 AI policy — can’t be turned off</small></div><span class="sw locked"></span></div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li><b>Layer 3 — Agent core.</b> Sets persona, languages, and the low-confidence fallback that triggers a clean handoff.</li>
+      <li class="warn"><b>“Restrict to business topics” is locked on.</b> A general-purpose bot is banned under Meta’s Jan 15 2026 policy — scoping is enforced, not optional.</li>
+      <li>Handoff toggle wires the conversation to the agent inbox with the full transcript attached.</li>
+    </ul>
+    <div class="maps">MAPS TO → Layer 3 persona/policies · §4.1 · compliance §6</div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="block">
+  <div class="blockhead"><span class="n">5</span><span class="t">Quick menus</span><span class="sub">Tap-buttons for the top intents; free-text RAG handles the rest.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/onboarding/<b>menus</b></span><span class="wl-tag">step 5 of 7</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Set your quick-reply menu</h3><span class="sub">shown as a WhatsApp list · up to 10</span></div>
+      <div class="lst">
+        <div class="lrow"><span class="ic">🏠</span><div><div class="nm">View projects &amp; availability</div><div class="mt">answered from knowledge base</div></div><div class="rt"><span class="tag muted">RAG</span></div></div>
+        <div class="lrow"><span class="ic">💰</span><div><div class="nm">Pricing &amp; payment plans</div><div class="mt">answered from knowledge base</div></div><div class="rt"><span class="tag muted">RAG</span></div></div>
+        <div class="lrow"><span class="ic">📅</span><div><div class="nm">Book a site visit</div><div class="mt">guided form &nbsp;<span class="tb t2" style="font-size:8.5px">needs T2</span></div></div><div class="rt"><span class="tag pend">🔒 Flow</span></div></div>
+        <div class="lrow"><span class="ic">🙋</span><div><div class="nm">Talk to an agent</div><div class="mt">hands off to inbox</div></div><div class="rt"><span class="tag ok">Handoff</span></div></div>
+      </div>
+      <div style="margin-top:10px"><span class="btn ghost sm">+ Add intent</span></div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li><b>Layer 4 — guided flows.</b> Top intents become a tappable WhatsApp <b>list message</b>; everything else falls through to RAG.</li>
+      <li class="t2">Action intents like <b>“Book a site visit”</b> show here but stay locked until Tier 2 connects a calendar (next step).</li>
+      <li>Menu-for-the-top-5, RAG-for-the-long-tail — predictable where it matters, flexible everywhere else.</li>
+    </ul>
+    <div class="maps">MAPS TO → Layer 4 menus · §2.2 (two delivery patterns)</div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="block">
+  <div class="blockhead"><span class="n">6</span><span class="t">Connect systems &amp; enable actions</span><span class="sub"><span class="tb t2">T2 only</span> Where the bot stops answering and starts doing.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/onboarding/<b>integrations</b></span><span class="wl-tag">step 6 · Growth</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Connect your systems</h3><span class="sub" style="color:var(--t2-2)">🔒 credentials encrypted · never shared with the bot</span></div>
+      <div class="grid2">
+        <div class="lst"><div class="lrow"><span class="ic">📅</span><div><div class="nm">Google Calendar</div><div class="mt">site-visit slots</div></div><div class="rt"><span class="tag ok">Connected</span></div></div></div>
+        <div class="lst"><div class="lrow"><span class="ic">🧩</span><div><div class="nm">HubSpot CRM</div><div class="mt">lead write-back</div></div><div class="rt"><span class="btn t2 sm">Connect</span></div></div></div>
+      </div>
+      <div style="font-size:10.5px;color:var(--muted);margin:11px 0 6px;font-family:'JetBrains Mono',monospace">ACTIONS THE BOT MAY TAKE — toggle each on</div>
+      <table class="tbl">
+        <tr><th>Action</th><th>System</th><th>Confirm first</th><th>Status</th></tr>
+        <tr><td><b>get_listing</b></td><td>Knowledge / CSV</td><td class="no">— read only</td><td><span class="sw locked" style="display:inline-block;width:30px;height:17px;border-radius:99px;position:relative;background:var(--t2)"></span></td></tr>
+        <tr><td><b>book_site_visit</b></td><td>Calendar</td><td><span class="tag ok">Yes ✓</span></td><td><span class="sw locked" style="display:inline-block;width:30px;height:17px;border-radius:99px;position:relative;background:var(--t2)"></span></td></tr>
+        <tr><td><b>create_lead</b></td><td>HubSpot</td><td><span class="tag ok">Yes ✓</span></td><td><span class="sw off" style="display:inline-block;width:30px;height:17px;border-radius:99px;position:relative;background:#d3dad9"></span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li class="t2"><b>Layers 4 + 7.</b> Each connection becomes a typed, tested tool the agent may call — `book_site_visit`, `create_lead`.</li>
+      <li class="sec"><b>The key rule, in the UI.</b> Secrets go into the per-tenant vault; the model emits a tool request and never sees a credential or the database.</li>
+      <li class="warn"><b>“Confirm first”</b> forces a human confirmation before any write — the bot proposes, the tool layer disposes.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>integrations</b> (vault) + <b>tools_config</b> · §4.3, §5.2</div>
+  </div>
+</div>
+
+<!-- STEP 7 -->
+<div class="block">
+  <div class="blockhead"><span class="n">7</span><span class="t">Templates &amp; go live</span><span class="sub">Submit message templates, test in a sandbox, then flip to live.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/onboarding/<b>launch</b></span><span class="wl-tag">step 7 of 7</span></div>
+    <div class="content" style="padding:18px 20px">
+      <div class="ph"><h3>Review &amp; launch</h3><span class="livebadge draft"><span class="d"></span> Draft</span></div>
+      <div class="grid3">
+        <div class="kpi"><div class="lab">📨 Templates</div><div style="margin-top:7px;display:flex;flex-direction:column;gap:5px">
+          <span class="tag ok">visit_reminder · Approved</span><span class="tag pend">new_listing · Pending</span></div></div>
+        <div class="kpi"><div class="lab">🧪 Sandbox test</div><div class="big" style="font-size:16px;margin-top:6px">12 / 12</div><div class="chg up">flows passed</div></div>
+        <div class="kpi" style="border:1.5px solid var(--brand)"><div class="lab">🚀 Status</div><div style="margin-top:7px"><span class="btn">Go live →</span></div><div class="chg flat" style="margin-top:6px">Draft → Live</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:11px">Going live registers webhooks for real events. Until then, only test numbers reach the bot.</div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li>Template CRUD + <b>Meta approval tracking</b> — utility/marketing templates are needed to start chats outside the 24h window.</li>
+      <li>The sandbox runs every menu &amp; tool against test data so the client trusts it before customers do.</li>
+      <li class="warn"><b>Webhooks only fire real events in the live state</b> — “Go live” is the switch that turns the tenant on.</li>
+    </ul>
+    <div class="maps">MAPS TO → template CRUD §3 · tenant status §5.2 · webhook §4.2</div>
+  </div>
+</div>
+
+<!-- ============================ PART B — OPERATING CONSOLE ============================ -->
+<section class="partband b" id="operating">
+  <div class="pid" style="color:var(--t2-2)">PART B · THE OPERATING CONSOLE</div>
+  <h2 style="color:var(--t2-2)">Day-to-day — the dashboard your client lives in</h2>
+  <p>Once live, this is the client’s home base: watch the bot work, jump into conversations it can’t handle, manage what it knows, and see exactly what they’re paying. Tier&nbsp;1 sees a focused set; Tier&nbsp;2 unlocks the integration, contacts, and action surfaces.</p>
+</section>
+<style>.partband.b::before{background:var(--t2)} .partband.b .stepper{ }</style>
+
+<!-- SHELL ANATOMY -->
+<div class="block">
+  <div class="blockhead"><span class="n" style="color:var(--t2)">▦</span><span class="t">Console anatomy</span><span class="sub">Graphite nav rail + workspace. Tier-2 items appear with a lock for Tier-1 clients.</span></div>
+  <div class="frame" style="grid-column:1 / -1">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/<b>skyline-realty</b>/overview</span><span class="wl-tag">your brand · your domain</span></div>
+    <div class="shell">
+      <div class="rail">
+        <div class="logo">S</div>
+        <div class="it on" title="Overview">▦</div>
+        <div class="it" title="Inbox">💬</div>
+        <div class="it" title="Contacts">👥</div>
+        <div class="it" title="Knowledge">📚</div>
+        <div class="it" title="Assistant">🤖</div>
+        <div class="it t2 lock" title="Integrations (T2)">🧩</div>
+        <div class="it" title="Templates">📨</div>
+        <div class="it t2 lock" title="Campaigns (T2/T3)">📣</div>
+        <div class="sp"></div>
+        <div class="it" title="Billing">💳</div>
+        <div class="it" title="Settings">⚙</div>
+      </div>
+      <div class="work">
+        <div class="topbar">
+          <div class="ws"><span class="wa">S</span> Skyline Realty <span class="ca">workspace ▾</span></div>
+          <span class="num">+91 98•• ••3344</span>
+          <span class="livebadge"><span class="d"></span> Live</span>
+          <span class="tierbadge t2">Growth · Tier 2</span>
+        </div>
+        <div class="content">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px">
+            <div style="grid-column:1/-1;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em">NAV — OVERVIEW · INBOX · CONTACTS · KNOWLEDGE · ASSISTANT · 🔒INTEGRATIONS · TEMPLATES · 🔒CAMPAIGNS · BILLING · SETTINGS</div>
+            <div class="kpi"><div class="lab">The rail switches modules</div><div class="big" style="font-size:15px">Workspace</div></div>
+            <div class="kpi"><div class="lab">Topbar switches tenant</div><div class="big" style="font-size:15px">Multi-tenant</div></div>
+            <div class="kpi t2"><div class="lab">Tier badge = config state</div><div class="big" style="font-size:15px;color:var(--t2-2)">Tier 2</div></div>
+            <div class="kpi"><div class="lab">Live/Draft = webhook state</div><div class="big" style="font-size:15px">Live</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno" style="grid-column:1 / -1; position:static; margin-top:-8px">
+    <p class="at">What this screen does</p>
+    <ul style="columns:2; column-gap:30px">
+      <li><b>This whole console is Layer 8 — the Control plane</b> (`apps/console/`). It’s where you and the client operate and observe the system.</li>
+      <li>The <b>workspace switcher</b> (topbar) is how a multi-location client — or you, supporting many clients — moves between tenants.</li>
+      <li class="t2"><b>Tier-2 nav items render with a 🔒 for Tier-1 clients</b> — a built-in upsell surface, no separate UI to build.</li>
+      <li>Same shell, every tenant. Tier is a flag that lights up modules, not a different app.</li>
+    </ul>
+    <div class="maps">MAPS TO → Layer 8 control plane · §4.1, §4.4 (apps/console)</div>
+  </div>
+</div>
+
+<!-- SCREEN: OVERVIEW -->
+<div class="block">
+  <div class="blockhead"><span class="n" style="color:var(--t2)">▦</span><span class="t">Overview</span><span class="sub"><span class="tb t1">Basic for T1</span> <span class="tb t2">Standard for T2</span> The “is it working / what’s it costing” glance.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/skyline-realty/<b>overview</b></span><span class="wl-tag">Live</span></div>
+    <div class="shell">
+      <div class="rail"><div class="logo">S</div><div class="it on">▦</div><div class="it">💬</div><div class="it">👥</div><div class="it">📚</div><div class="it">🤖</div><div class="it t2 lock">🧩</div><div class="it">📨</div><div class="sp"></div><div class="it">💳</div></div>
+      <div class="work">
+        <div class="topbar"><div class="ws"><span class="wa">S</span> Skyline Realty</div><span class="livebadge"><span class="d"></span> Live</span><span class="tierbadge t2">Tier 2</span></div>
+        <div class="content">
+          <div class="ph"><h3>This week</h3><span class="sub">Mon–Sun · auto-refresh</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div class="kpi"><div class="lab">💬 Conversations</div><div class="big">418</div><div class="chg up">▲ 12%</div></div>
+            <div class="kpi"><div class="lab">✅ Deflection</div><div class="big">71%</div><div class="chg up">▲ 4%</div></div>
+            <div class="kpi"><div class="lab">⭐ CSAT</div><div class="big">4.6</div><div class="chg flat">— stable</div></div>
+            <div class="kpi t2"><div class="lab">🔧 Actions done</div><div class="big" style="color:var(--t2-2)">96</div><div class="chg up">site visits + leads</div></div>
+            <div class="kpi"><div class="lab">🤖 AI replies</div><div class="big" style="font-size:18px">1,840<span style="font-size:11px;color:var(--muted)"> / 12k</span></div><div class="bar"><i style="width:16%"></i></div></div>
+            <div class="kpi"><div class="lab">📨 Meta cost <span class="tag muted" style="font-size:8px">at cost</span></div><div class="big" style="font-size:18px">₹3,449</div><div class="chg flat">in-window hit 83%</div></div>
+          </div>
+          <div style="margin-top:11px" class="lst">
+            <div class="lrow"><span class="ic">🔧</span><div><div class="nm">Booked a site visit · #SV-2291</div><div class="mt">2 min ago · auto</div></div><span class="tag ok" style="margin-left:auto">resolved</span></div>
+            <div class="lrow"><span class="ic">🙋</span><div><div class="nm">Handed off to Priya · pricing dispute</div><div class="mt">9 min ago</div></div><span class="tag pend" style="margin-left:auto">with agent</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <div class="tierchips"><span class="tb t1">T1 sees</span> deflection · CSAT · AI usage &nbsp; <span class="tb t2">T2 adds</span> actions · resolution · Meta cost</div>
+    <ul>
+      <li>The numbers that prove ROI: <b>deflection</b> (questions handled without a human), <b>CSAT</b>, and resolution.</li>
+      <li class="warn"><b>In-window hit rate (83%)</b> doubles as your cost lever — the higher it is, the more replies are free.</li>
+      <li>Meta cost shows <b>at cost</b> — your 0%-markup transparency, right on the client’s home screen.</li>
+    </ul>
+    <div class="maps">MAPS TO → analytics §6.3 · <b>billing_usage</b> §5.2 · cost model §7</div>
+  </div>
+</div>
+
+<!-- SCREEN: INBOX -->
+<div class="block">
+  <div class="blockhead"><span class="n" style="color:var(--t2)">💬</span><span class="t">Team inbox</span><span class="sub"><span class="tb t1">Both tiers</span> Where a human takes over when the bot steps back.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/skyline-realty/<b>inbox</b></span><span class="wl-tag">3 need a human</span></div>
+    <div class="shell">
+      <div class="rail"><div class="logo">S</div><div class="it">▦</div><div class="it on">💬</div><div class="it">👥</div><div class="it">📚</div><div class="it">🤖</div><div class="it t2 lock">🧩</div><div class="sp"></div><div class="it">💳</div></div>
+      <div class="work">
+        <div class="topbar"><div class="ws"><span class="wa">S</span> Inbox</div><span class="num" style="border-color:var(--red-soft);color:var(--red)">3 unassigned</span><span class="tierbadge t2">Tier 2</span></div>
+        <div class="content" style="padding:12px">
+          <div class="inbox">
+            <div class="conv-list">
+              <div class="ci on"><div class="nm">Rahul S. <span class="tag pend badge" style="float:right">human</span></div><div class="pv">pricing seems wrong…</div></div>
+              <div class="ci"><div class="nm">Aanya M. <span class="tag ok badge" style="float:right">bot</span></div><div class="pv">booked site visit ✓</div></div>
+              <div class="ci"><div class="nm">+91 90•• 12</div><div class="pv">do you have 3BHK?</div></div>
+            </div>
+            <div class="thread">
+              <div class="tb-msg inb"><div class="by">customer</div>your site says 62L but agent told me 68L?</div>
+              <div class="tb-msg out"><div class="by">🤖 assistant</div>Let me bring in our team to confirm the exact price.</div>
+              <div class="tb-msg out" style="background:var(--t2-soft)"><div class="by">⚙ system</div>Handed to Priya · full transcript attached</div>
+              <div class="reply"><span>Reply as Priya…</span><span class="btn sm" style="padding:4px 9px">Send</span></div>
+            </div>
+            <div class="conv-prof">
+              <div class="av">R</div>
+              <div style="font-weight:600">Rahul Sharma</div>
+              <div class="mt" style="color:var(--muted)">+91 98•• ••3344</div>
+              <div class="pk">Tags</div><span class="tag muted">hot-lead</span>
+              <div class="pk">Opt-in</div><span class="tag ok">marketing ✓</span>
+              <div class="pk">Interested in</div>Tower B · 2BHK
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li>The <b>handoff destination.</b> When the bot hits low confidence or the customer asks, the thread lands here <b>with the full transcript</b> — no repeating.</li>
+      <li>“bot” vs “human” badges show who handled what; agents assign and reply from one number.</li>
+      <li class="t2">For Tier 2, <b>tool results show inline</b> (“booked site visit ✓”) so the agent sees exactly what the bot did.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>conversations</b> + <b>messages</b> · handoff §6 · §5.2</div>
+  </div>
+</div>
+
+<!-- SCREEN: KNOWLEDGE -->
+<div class="block">
+  <div class="blockhead"><span class="n">📚</span><span class="t">Knowledge</span><span class="sub"><span class="tb t1">T1 hero surface</span> Manage what the bot knows; catch gaps before customers do.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/brightpath-coaching/<b>knowledge</b></span><span class="wl-tag">BrightPath Coaching · Tier 1</span></div>
+    <div class="shell">
+      <div class="rail"><div class="logo" style="background:linear-gradient(135deg,var(--brand),#0bd49a)">B</div><div class="it">▦</div><div class="it">💬</div><div class="it">📚</div><div class="it on">📚</div><div class="it">🤖</div><div class="sp"></div><div class="it">💳</div></div>
+      <div class="work">
+        <div class="topbar"><div class="ws"><span class="wa">B</span> BrightPath Coaching</div><span class="livebadge"><span class="d"></span> Live</span><span class="tierbadge t1">Starter · Tier 1</span></div>
+        <div class="content">
+          <div class="ph"><h3>Knowledge base</h3><div><span class="btn ghost sm">Test a question</span> <span class="btn sm">+ Add source</span></div></div>
+          <table class="tbl">
+            <tr><th>Source</th><th>Type</th><th>Last synced</th><th>Coverage</th><th>Status</th></tr>
+            <tr><td><b>course-catalogue.pdf</b></td><td>PDF · 96 chunks</td><td>2 days ago</td><td>JEE · NEET · Foundation</td><td><span class="tag ok">Indexed</span></td></tr>
+            <tr><td><b>fees-and-batches.xlsx</b></td><td>Sheet · 40 rows</td><td>today</td><td>fees · timings</td><td><span class="tag ok">Indexed</span></td></tr>
+            <tr><td><b>refund-policy.docx</b></td><td>DOCX · 8 chunks</td><td>1 wk ago</td><td>policy</td><td><span class="tag ok">Indexed</span></td></tr>
+            <tr><td colspan="5" style="background:var(--amber-soft);color:var(--amber)"><b>⚠ Gap detected</b> — 14 questions about “scholarship test dates” had no good answer. Add a source?</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li><b>The Tier-1 client’s main job.</b> Keep documents current; the bot’s answers update the moment a source re-indexes.</li>
+      <li class="warn"><b>Gap detection</b> surfaces questions the bot couldn’t answer well — turning unanswered chats into a to-do list.</li>
+      <li>Same namespace isolation as onboarding — BrightPath’s docs never touch Skyline’s.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>knowledge_sources</b> · RAG §2.2 · analytics §6.3</div>
+  </div>
+</div>
+
+<!-- SCREEN: INTEGRATIONS (T2) -->
+<div class="block">
+  <div class="blockhead"><span class="n" style="color:var(--t2)">🧩</span><span class="t">Integrations &amp; tools</span><span class="sub"><span class="tb t2">T2 hero surface</span> The control panel for everything the bot can <i>do</i>.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/skyline-realty/<b>integrations</b></span><span class="wl-tag">Tier 2</span></div>
+    <div class="shell">
+      <div class="rail"><div class="logo">S</div><div class="it">▦</div><div class="it">💬</div><div class="it">👥</div><div class="it">📚</div><div class="it">🤖</div><div class="it t2 on">🧩</div><div class="sp"></div><div class="it">💳</div></div>
+      <div class="work">
+        <div class="topbar"><div class="ws"><span class="wa">S</span> Integrations &amp; tools</div><span class="num" style="color:var(--t2-2);border-color:var(--t2-line)">🔒 vault active</span><span class="tierbadge t2">Tier 2</span></div>
+        <div class="content">
+          <div class="ph"><h3>Connected systems</h3><span class="sub">credentials encrypted · never exposed to the model</span></div>
+          <div class="grid3" style="margin-bottom:12px">
+            <div class="lst"><div class="lrow"><span class="ic">📅</span><div><div class="nm">Calendar</div><div class="mt">synced 1m ago</div></div></div></div>
+            <div class="lst"><div class="lrow"><span class="ic">🧩</span><div><div class="nm">HubSpot</div><div class="mt">synced 4m ago</div></div></div></div>
+            <div class="lst"><div class="lrow"><span class="ic">💬</span><div><div class="nm">+ Add</div><div class="mt">ERP / OMS</div></div></div></div>
+          </div>
+          <div style="font-size:10.5px;color:var(--muted);margin-bottom:6px;font-family:'JetBrains Mono',monospace">TOOL REGISTRY</div>
+          <table class="tbl">
+            <tr><th>Tool</th><th>Confirm</th><th>Calls (7d)</th><th>Success</th><th>On</th></tr>
+            <tr><td><b>book_site_visit</b></td><td><span class="tag ok">Yes</span></td><td>72</td><td><span style="color:#0a8a5b">100%</span></td><td><span class="sw locked" style="display:inline-block;width:28px;height:16px;border-radius:99px;background:var(--t2)"></span></td></tr>
+            <tr><td><b>create_lead</b></td><td><span class="tag ok">Yes</span></td><td>96</td><td><span style="color:#0a8a5b">99%</span></td><td><span class="sw locked" style="display:inline-block;width:28px;height:16px;border-radius:99px;background:var(--t2)"></span></td></tr>
+            <tr><td><b>get_listing</b></td><td class="no">read</td><td>610</td><td><span style="color:#0a8a5b">100%</span></td><td><span class="sw locked" style="display:inline-block;width:28px;height:16px;border-radius:99px;background:var(--t2)"></span></td></tr>
+          </table>
+          <div class="field" style="margin-top:9px;background:var(--surface-2)"><span class="lab">Audit log</span><span class="cur">96 writes · who / what / when · export →</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li class="t2"><b>The agent’s allowed actions, made visible.</b> The registry is exactly what the bot can call — no tool, no action.</li>
+      <li class="sec"><b>🔒 Vault active</b> — connection secrets live here, used only inside the tool layer; the prompt never sees them.</li>
+      <li class="warn">Per-tool <b>success rate</b> + the <b>audit log</b> make every side effect testable and traceable — trust by construction.</li>
+    </ul>
+    <div class="maps">MAPS TO → <b>integrations</b>, <b>tools_config</b>, <b>audit_log</b> · §4.3, §5.2</div>
+  </div>
+</div>
+
+<!-- SCREEN: BILLING -->
+<div class="block">
+  <div class="blockhead"><span class="n">💳</span><span class="t">Billing &amp; usage</span><span class="sub"><span class="tb t1">Both tiers</span> Four clear lines — so your margin never hides inside Meta’s bill.</span></div>
+  <div class="frame">
+    <div class="fbar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><span class="lk">🔒</span> app.yourbrand.io/skyline-realty/<b>billing</b></span><span class="wl-tag">June 2026</span></div>
+    <div class="shell">
+      <div class="rail"><div class="logo">S</div><div class="it">▦</div><div class="it">💬</div><div class="it">📚</div><div class="it">🤖</div><div class="it t2 lock">🧩</div><div class="sp"></div><div class="it on">💳</div></div>
+      <div class="work">
+        <div class="topbar"><div class="ws"><span class="wa">S</span> Billing</div><span class="tierbadge t2">Growth · Tier 2</span></div>
+        <div class="content">
+          <div class="ph"><h3>This month</h3><span class="sub">plan renews 1 Jul</span></div>
+          <table class="tbl">
+            <tr><th>Line</th><th>What it is</th><th style="text-align:right">Amount</th></tr>
+            <tr><td><b>Platform / retainer</b></td><td>Growth plan · bot, console, SLA 99.9%</td><td style="text-align:right"><b>₹16,000</b></td></tr>
+            <tr><td><b>AI usage</b></td><td>1,840 of 12,000 convos included</td><td style="text-align:right">₹0 <span class="tag ok">in plan</span></td></tr>
+            <tr><td><b>WhatsApp messages</b></td><td>Marketing 3,000 · Utility 2,400 · Auth 500</td><td style="text-align:right">₹3,449 <span class="tag muted">at cost</span></td></tr>
+            <tr><td colspan="2" style="text-align:right;color:var(--muted)">Setup (one-time, paid)</td><td style="text-align:right;color:var(--muted)">₹40,000</td></tr>
+          </table>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px">
+            <div class="kpi"><div class="lab">Messages by category</div>
+              <div style="font-size:10.5px;margin-top:5px">Marketing<div class="bar"><i style="width:62%"></i></div></div>
+              <div style="font-size:10.5px;margin-top:4px">Utility<div class="bar"><i class="t2" style="width:30%"></i></div></div>
+              <div style="font-size:10.5px;margin-top:4px">Auth<div class="bar"><i class="am" style="width:10%"></i></div></div>
+            </div>
+            <div class="kpi"><div class="lab">Meta pass-through</div><div class="big" style="font-size:20px;color:var(--brand-2)">0%</div><div class="chg flat">markup — billed at Meta’s rate</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="anno">
+    <p class="at">What this screen does</p>
+    <ul>
+      <li><b>Your four revenue lines, separated</b> — setup, retainer, AI usage, Meta pass-through — so the recurring margin stays visible.</li>
+      <li><b>Messages shown at cost.</b> The 0%-markup line is the wedge against Wati/AiSensy/Interakt, made concrete for the client.</li>
+      <li class="warn">Category breakdown nudges the client toward cheaper utility-in-window sends — lower their bill, raise retention.</li>
+    </ul>
+    <div class="maps">MAPS TO → pricing §8 · <b>billing_usage</b> §5.2 · Meta rollup §7</div>
+  </div>
+</div>
+
+<!-- ============================ TIER MATRIX ============================ -->
+<section class="matrix" id="matrix">
+  <h2>What lights up per tier</h2>
+  <p>Same console for every client. Tier is a switch — these are the modules and capabilities it turns on. Use this to scope a sale and to drive the in-product upsell.</p>
+  <table class="mtbl">
+    <tr><th>Console capability</th><th class="c t1c">Tier 1 · Answer</th><th class="c t2c">Tier 2 · Act</th></tr>
+
+    <tr><td class="sect-td" colspan="3">Onboarding</td></tr>
+    <tr><td><div class="feat">Connect WhatsApp (Embedded Signup)</div><div class="desc">WABA + number via Zernio, no App Review</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Knowledge base upload + indexing</div><div class="desc">per-tenant vector namespace</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Connect systems &amp; tool registry</div><div class="desc">calendar / CRM / ERP + confirm-before-write</div></td><td class="c"><span class="no">🔒</span></td><td class="c"><span class="yes">●</span></td></tr>
+
+    <tr><td class="sect-td" colspan="3">Operating console</td></tr>
+    <tr><td><div class="feat">Overview analytics</div><div class="desc">deflection · CSAT vs + actions · resolution · Meta cost</div></td><td class="c"><span class="opt">Basic</span></td><td class="c"><span class="yes">Standard</span></td></tr>
+    <tr><td><div class="feat">Team inbox + human handoff</div><div class="desc">full transcript on escalation</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Knowledge management + gap detection</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Assistant &amp; quick menus</div><div class="desc">persona, languages, intents, fallback</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Integrations &amp; tools panel + audit log</div><div class="desc">live read + write-back, success rates</div></td><td class="c"><span class="no">🔒</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Contacts / CRM with opt-in &amp; tags</div></td><td class="c"><span class="opt">Light</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Templates + Meta approval tracking</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+    <tr><td><div class="feat">Campaigns / outbound</div><div class="desc">cart-recovery, broadcasts — mainly Tier 3</div></td><td class="c"><span class="no">🔒</span></td><td class="c"><span class="opt">Optional</span></td></tr>
+    <tr><td><div class="feat">Billing &amp; usage (4 lines, at-cost Meta)</div></td><td class="c"><span class="yes">●</span></td><td class="c"><span class="yes">●</span></td></tr>
+
+    <tr><td class="sect-td" colspan="3">Plan defaults (§8.2)</td></tr>
+    <tr><td><div class="feat">Target SLA</div></td><td class="c">99.5%</td><td class="c">99.9%</td></tr>
+    <tr><td><div class="feat">Included AI conversations</div></td><td class="c">~2,000</td><td class="c">~12,000</td></tr>
+  </table>
+</section>
+
+<footer>
+  <h4>How to read this as a build spec</h4>
+  <p style="max-width:82ch;color:var(--ink-soft)">This is one console for a <b>multi-tenant platform</b>; a client’s tier is a flag that lights up modules, not a separate product. Part A is the setup wizard that earns the “Setup / onboarding” fee; Part B is the recurring surface that earns the retainer. Every screen here is the user-facing edge of a layer you’ve already specced in the blueprint — the table on the right of each screen names exactly which one. Build the shell + tier-flag system once, and every screen becomes tier-aware for free.</p>
+  <p class="map">
+    BLUEPRINT MAP —<br>
+    Console = <code>Layer 8 · Control plane</code> (§4.1) · <code>apps/console/</code> (§4.4)<br>
+    Onboarding → <code>tenants</code>, <code>channels</code>, <code>knowledge_sources</code>, <code>integrations</code>, <code>tools_config</code> (§5.2) · Embedded Signup + Zernio (§1, Layer 1) · template CRUD (§3)<br>
+    Operating → analytics + observability (§6.3) · handoff (§6) · <code>conversations</code> / <code>messages</code> / <code>contacts</code> / <code>audit_log</code> (§5.2) · cost model + pricing (§7, §8)<br>
+    Tiers as configuration, not codebases (§0, §3, §4).
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

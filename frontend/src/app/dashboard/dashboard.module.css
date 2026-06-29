@@ -24,6 +24,9 @@
 }
 
 .navMenu {
+  --brand: #0BA777;
+  --brand-2: #0A6E50;
+  --brand-soft: #E4F6EF;
   flex: 1;
   padding: 1rem 0;
   overflow-y: auto;
@@ -47,9 +50,9 @@
 }
 
 .navItem.active {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border-right: 3px solid var(--primary);
+  background-color: var(--brand-soft);
+  color: var(--brand-2);
+  border-left: 3px solid var(--brand);
 }
 
 .mainContent {

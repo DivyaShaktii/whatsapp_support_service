@@ -167,7 +167,7 @@ export default function ChannelsStep() {
         <Link href="/onboarding/workspace">
           <Button type="button" variant="ghost">Back</Button>
         </Link>
-        <Link href="/onboarding/knowledge">
+        <Link href="/dashboard">
           <Button type="button" variant="primary" disabled={selected.length === 0}>
             Continue
           </Button>
@@ -192,6 +192,12 @@ export default function ChannelsStep() {
             </Button>
             <Button variant="outline" onClick={() => { setErrorMsg(''); setWaMode('new'); }} style={{ justifyContent: 'flex-start', padding: '1rem' }}>
               Register a New Business Number
+            </Button>
+            <Button variant="outline" onClick={() => { 
+                setSelected(prev => (prev.includes('whatsapp') ? prev : [...prev, 'whatsapp']));
+                setWaMode('success');
+            }} style={{ justifyContent: 'flex-start', padding: '1rem', borderStyle: 'dashed', borderColor: '#f59e0b', color: '#f59e0b' }}>
+              [DEV] Bypass Verification
             </Button>
           </div>
         )}
